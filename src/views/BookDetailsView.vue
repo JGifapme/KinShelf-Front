@@ -18,12 +18,16 @@ const { book, loading } = useBookDetails();
         </div>
         <!-- Colonne 2 : Infos techniques -->
         <div>
+          <router-link :to="`/edit-book/${book.slug}`" class="btn-edit">
+            Modifier le livre
+          </router-link>
           <h2>Fiche Technique</h2>
+          <p><strong>ISBN :</strong> {{ book.isbn }}</p>
           <p><strong>Série : </strong>
-            <router-link v-if="book.series" :to="'/series/' + book.series?.id">
+            <router-link v-if="book.series" :to="'/series/' + book.series?.slug">
               {{ book.series.name}} ({{ book.series.status }})
             </router-link>
-            <span v-else>One-shot</span>
+            <span v-else>Non</span>
           </p>
           <p><strong>Éditeur :</strong> {{ book.publisher?.name }}</p>
           <p><strong>Catégorie :</strong> {{ book.category?.name }}</p>
@@ -32,7 +36,7 @@ const { book, loading } = useBookDetails();
           <p><strong>Genre(s) :</strong> <span v-for="genre in book.genres" :key="genre.id">{{ genre.name }}&nbsp;</span></p>
           <p><strong>Auteur(s) : </strong>
             <span v-for="(a, index) in book.authors" :key="a.id">
-              <router-link :to="'/author/' + a.id">
+              <router-link :to="'/author/' + a.slug">
                 {{ a.fullName }} <span class="author-role">({{ a.role.toLowerCase() }})</span>
               </router-link>
               <span v-if="index < book.authors.length - 1">, </span>
@@ -97,17 +101,13 @@ const { book, loading } = useBookDetails();
 </template>
 
 <style scoped>
-div.wrapper{
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: center;
-  gap: 25px;
-  margin-bottom: 25px;
-
-}
 div.wrapper > div{
   text-align: left;
+}
+div.wrapper > div img{
+  max-height: 250px;
+  box-shadow: rgba(43, 40, 40, 0.33) 5px 3px 10px;
+  border: 1px solid #959298;
 }
 div.wrapper p{
   margin: 10px 0;

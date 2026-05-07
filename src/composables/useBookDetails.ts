@@ -8,8 +8,8 @@ export function useBookDetails() {
 
     const fetchBookDetails = async () => {
         try {
-            const id = route.params.id;
-            const res = await fetch(`http://localhost:8080/api/books/${id}`);
+            const slug = route.params.slug;
+            const res = await fetch(`http://localhost:8080/api/books/${slug}`);
             if (res.ok) {
                 book.value = await res.json();
             }

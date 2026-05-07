@@ -1,11 +1,15 @@
-import { reactive, ref, onMounted } from 'vue';
+import {reactive, ref, onMounted, computed} from 'vue';
+import {useRoute} from "vue-router";
 
 export function useBookForm() {
     // 1. État du formulaire
     const bookForm = reactive({
+        id: '',
         title: '',
+        slug: '',
+        isbn: '',
         description: '',
-        numberOfPages: 0,
+        numberOfPages: null,
         coverUrl: '',
         publicationDate: '',
         publisherId: null as number | null,
@@ -41,6 +45,45 @@ export function useBookForm() {
     });
     const newPublisher = reactive({ name: ''});
 
+    const route = useRoute();
+    // Calculer si on est en mode édition
+    const isEditMode = computed(() => !!route.params.slug);
+
+    onMounted(async () => {
+        if (isEditMode.value) {
+
+            // Si on a un slug, on va chercher les infos sur le serveur
+            try {
+                const slug = route.params.slug;
+                //alert('slug : '+slug);
+                const res = await fetch(`http://localhost:8080/api/books/${slug}`);
+                if (res.ok) {
+
+                    const data = await res.json();
+
+                    // Remplissage auto
+                    bookForm.id = data.id || '';
+                    bookForm.title = data.title || '';
+                    bookForm.slug = data.slug || '';
+                    bookForm.isbn = data.isbn || '';
+                    bookForm.description = data.description || '';
+                    bookForm.numberOfPages = data.numberOfPages || 0;
+                    bookForm.coverUrl = data.coverUrl || '';
+                    bookForm.publicationDate = data.publicationDate || '';
+                    bookForm.categoryId = data.category.id || '';
+                    bookForm.publisherId = data.publisher.id || '';
+                    bookForm.seriesId = data.series.id || '';
+                    bookForm.authors = data.authors?.map(a => ({authorId: a.id, role: a.role})) || [];
+                    bookForm.genreIds = data.genres?.map(g => g.id) || [];
+
+                }
+            } catch (err) {
+                console.error("Erreur lors de la récupération des données", err);
+            } finally {
+                isLoadingIsbn.value = false;
+            }
+        }
+    });
 
     // --- LOGIQUE DE NETTOYAGE POUR LE MATCHING ---
     const cleanName = (name: string) => {
@@ -114,12 +157,26 @@ export function useBookForm() {
 
 
     const submitBook = async () => {
-        const res = await fetch('http://localhost:8080/api/books', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(bookForm)
-        });
-        if (res.ok) alert('Livre enregistré !');
+        let res;
+        if (isEditMode.value) {
+            res = await fetch(`http://localhost:8080/api/books/${bookForm.id}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(bookForm)
+            });
+        }
+        else {
+            res = await fetch('http://localhost:8080/api/books', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(bookForm)
+            });
+        }
+        if (res.ok) {
+            alert('Livre enregistré !');
+        } else {
+            alert('Erreur lors de l’enregistrement');
+        }
     };
 
     // 4. Actions

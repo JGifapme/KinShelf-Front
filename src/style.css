@@ -149,8 +149,6 @@ h2 {
     border-bottom: none;
 }
 
-
-
 /* --- Animation de glissement --- */
 .slide-enter-active, .slide-leave-active {
     transition: all 0.3s ease;
@@ -161,7 +159,15 @@ h2 {
     max-height: 0;
     opacity: 0;
 }
+div.wrapper{
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 25px;
 
+}
 /* --- Media Queries (Responsive) --- */
 @media (max-width: 768px) {
     .navbar {

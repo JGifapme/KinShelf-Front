@@ -6,6 +6,7 @@ import axios from 'axios'
 interface Book {
   id: number;
   title: string;
+  slug: string;
   coverUrl?: string;
 }
 
@@ -30,7 +31,7 @@ onMounted(loadBooks)
 
     <div class="shelf">
       <div v-for="book in books" :key="book.id" class="HPlivresMini">
-        <router-link :to="'/book/' + book.id">
+        <router-link :to="'/book/' + book.slug">
           <img v-if="book.coverUrl" :src="book.coverUrl" :alt="book.title" >
           <div v-else class="siPasCouv"><h2>{{ book.title }}</h2></div>
           <p class="HPlivresTitre">{{ book.title }}</p>
@@ -78,8 +79,8 @@ div.HPlivresMini img{
   border: 1px solid #959298;
 }
 div.HPlivresMini div.siPasCouv {
-  background-color: #2c3b4d;
-  background: linear-gradient(to right bottom, #2c3b4d, #1B2632);
+  background-color: #34383c;
+  background: linear-gradient(to right bottom, #43474e, #2c2f32);
   text-align: center;
   width: 100%;
   border: 1px solid #959298;
@@ -94,7 +95,7 @@ div.HPlivresMini div.siPasCouv {
 div.HPlivresMini div.siPasCouv h2{
   font-size: 18px;
   color: #EEE9DF;
-  opacity: 0.5;
+  opacity: 0.3;
   margin: 0 2px;
 }
 p.HPlivresTitre{
