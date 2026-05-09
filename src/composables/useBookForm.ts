@@ -1,5 +1,5 @@
 import {reactive, ref, onMounted, computed} from 'vue';
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 export function useBookForm() {
     // 1. État du formulaire
@@ -9,7 +9,7 @@ export function useBookForm() {
         slug: '',
         isbn: '',
         description: '',
-        numberOfPages: null,
+        numberOfPages: 0,
         coverUrl: '',
         publicationDate: '',
         publisherId: null as number | null,
@@ -46,21 +46,36 @@ export function useBookForm() {
     const newPublisher = reactive({ name: ''});
 
     const route = useRoute();
+    const router = useRouter();
     // Calculer si on est en mode édition
     const isEditMode = computed(() => !!route.params.slug);
 
+    // --- CHARGEMENT INITIAL ---
     onMounted(async () => {
+        try {
+            const [auth, pub, cat, gen, ser] = await Promise.all([
+                fetch('http://localhost:8080/api/authors').then(res => res.json()),
+                fetch('http://localhost:8080/api/publishers').then(res => res.json()),
+                fetch('http://localhost:8080/api/categories').then(res => res.json()),
+                fetch('http://localhost:8080/api/genres').then(res => res.json()),
+                fetch('http://localhost:8080/api/series').then(res => res.json())
+            ]);
+            allAuthors.value = auth;
+            allPublishers.value = pub;
+            allCategories.value = cat;
+            allGenres.value = gen;
+            allSeries.value = ser;
+        } catch (err) {
+            console.error("Erreur lors du chargement des données", err);
+        }
         if (isEditMode.value) {
-
             // Si on a un slug, on va chercher les infos sur le serveur
             try {
                 const slug = route.params.slug;
                 //alert('slug : '+slug);
                 const res = await fetch(`http://localhost:8080/api/books/${slug}`);
+                const data = await res.json();
                 if (res.ok) {
-
-                    const data = await res.json();
-
                     // Remplissage auto
                     bookForm.id = data.id || '';
                     bookForm.title = data.title || '';
@@ -70,12 +85,17 @@ export function useBookForm() {
                     bookForm.numberOfPages = data.numberOfPages || 0;
                     bookForm.coverUrl = data.coverUrl || '';
                     bookForm.publicationDate = data.publicationDate || '';
-                    bookForm.categoryId = data.category.id || '';
-                    bookForm.publisherId = data.publisher.id || '';
-                    bookForm.seriesId = data.series.id || '';
-                    bookForm.authors = data.authors?.map(a => ({authorId: a.id, role: a.role})) || [];
-                    bookForm.genreIds = data.genres?.map(g => g.id) || [];
-
+                    bookForm.categoryId = data.category?.id || null;
+                    bookForm.publisherId = data.publisher?.id || null;
+                    bookForm.seriesId = data.series?.id || null;
+                    bookForm.authors = (data.authors as any[]).map((a: any) => ({
+                        authorId: a.id,
+                        role: a.role
+                    }));
+                    bookForm.genreIds = (data.genres as any[]).map((g: any) => g.id) || [];
+                }
+                else {
+                    alert(data.message);
                 }
             } catch (err) {
                 console.error("Erreur lors de la récupération des données", err);
@@ -88,7 +108,7 @@ export function useBookForm() {
     // --- LOGIQUE DE NETTOYAGE POUR LE MATCHING ---
     const cleanName = (name: string) => {
         return name.toLowerCase()
-            .replace(/s\.a\.|ltd|inc|publishing|éditions|editions|group|media/g, '')
+            .replace(/s\.a\.|ltd|inc|publishing|éditions|editions|group|groupe|media|média/g, '')
             .trim();
     };
 
@@ -134,9 +154,8 @@ export function useBookForm() {
 
         try {
             const res = await fetch(`http://localhost:8080/api/isbn/${isbnSearch.value}`);
+            const data = await res.json();
             if (res.ok) {
-                const data = await res.json();
-
                 // Remplissage auto
                 bookForm.title = data.title || '';
                 bookForm.description = data.description || '';
@@ -148,13 +167,15 @@ export function useBookForm() {
                 if (data.publisher) matchPublisherAutomatically(data.publisher);
                 if (data.authors) matchAuthorsAutomatically(data.authors);
             }
+            else {
+                alert(data.message);
+            }
         } catch (err) {
             console.error("Erreur ISBN:", err);
         } finally {
             isLoadingIsbn.value = false;
         }
     };
-
 
     const submitBook = async () => {
         let res;
@@ -172,10 +193,13 @@ export function useBookForm() {
                 body: JSON.stringify(bookForm)
             });
         }
+        const retourJson = await res.json();//récupère le json du livre créé ou de l'erreur éventuelle
         if (res.ok) {
+            console.log(retourJson);
             alert('Livre enregistré !');
+            router.push(`/book/${retourJson.slug}`);
         } else {
-            alert('Erreur lors de l’enregistrement');
+            alert(retourJson.message);
         }
     };
 
@@ -192,12 +216,15 @@ export function useBookForm() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newAuthor)
         });
+        const retourJson = await res.json();
         if (res.ok) {
-            const created = await res.json();
-            allAuthors.value.push(created);
+            allAuthors.value.push(retourJson);
             isAuthorModalOpen.value = false;
             newAuthor.firstName = '';
             newAuthor.lastName = '';
+        }
+        else {
+            alert(retourJson.message);
         }
     };
     const createPublisher = async () => {
@@ -206,12 +233,15 @@ export function useBookForm() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newPublisher)
         });
+        const retourJson = await res.json();
         if (res.ok) {
-            const created = await res.json();
-            allPublishers.value.push(created);
-            bookForm.publisherId = created.id; // On le sélectionne direct !
+            allPublishers.value.push(retourJson);
+            bookForm.publisherId = retourJson.id; // On le sélectionne direct !
             isPublisherModalOpen.value = false;
             newPublisher.name = '';
+        }
+        else {
+            alert(retourJson.message);
         }
     };
     // 3. Action pour créer la série
@@ -221,37 +251,18 @@ export function useBookForm() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newSeries)
         });
+        const retourJson = await res.json();
         if (res.ok) {
-            const created = await res.json();
-            allSeries.value.push(created);
-            bookForm.seriesId = created.id; // On la sélectionne direct
+            allSeries.value.push(retourJson);
+            bookForm.seriesId = retourJson.id; // On la sélectionne direct
             isSeriesModalOpen.value = false;
             newSeries.name = '';
             newSeries.status = 'EN_COURS';
         }
-    };
-
-    // --- CHARGEMENT INITIAL ---
-    const fetchInitialData = async () => {
-        try {
-            const [auth, pub, cat, gen, ser] = await Promise.all([
-                fetch('http://localhost:8080/api/authors').then(res => res.json()),
-                fetch('http://localhost:8080/api/publishers').then(res => res.json()),
-                fetch('http://localhost:8080/api/categories').then(res => res.json()),
-                fetch('http://localhost:8080/api/genres').then(res => res.json()),
-                fetch('http://localhost:8080/api/series').then(res => res.json())
-            ]);
-            allAuthors.value = auth;
-            allPublishers.value = pub;
-            allCategories.value = cat;
-            allGenres.value = gen;
-            allSeries.value = ser;
-        } catch (err) {
-            console.error("Erreur chargement données", err);
+        else {
+            alert(retourJson.message);
         }
     };
-
-    onMounted(fetchInitialData);
 
     // On expose uniquement ce que le HTML doit voir
     return {

@@ -10,8 +10,8 @@ const {
 </script>
 
 <template>
-  <div class="">
-    <h1 class="">Ajouter un nouveau livre</h1>
+  <div>
+    <h1>Ajouter un nouveau livre</h1>
 
     <form @submit.prevent="submitBook" class="space-y-4">
       <div class="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-200">
@@ -36,35 +36,41 @@ const {
           </button>
         </div>
       </div>
+      
       <!-- Titre -->
       <div>
-        <label class="">Titre*</label>
-        <input v-model="bookForm.title" type="text" class="" required>
+        <label>Titre*</label>
+        <input v-model="bookForm.title" type="text" required>
+      </div>
+      <!-- isbn -->
+      <div>
+        <label>isbn</label>
+        <input v-model="bookForm.isbn" type="text">
       </div>
       <!--Description -->
       <div>
-        <label class="">Description</label>
-        <input v-model="bookForm.description" type="text" class="">
+        <label>Description</label>
+        <input v-model="bookForm.description" type="text">
       </div>
       <!--Nombre de pages -->
       <div>
-        <label class="">Nombre de pages</label>
-        <input v-model.number="bookForm.numberOfPages" type="number" class="">
+        <label>Nombre de pages</label>
+        <input v-model.number="bookForm.numberOfPages" type="number">
       </div>
       <!--Url de l'image -->
       <div>
-        <label class="">Lien URL de l'image de couverture</label>
-        <input v-model="bookForm.coverUrl" type="text" class="">
+        <label>Lien URL de l'image de couverture</label>
+        <input v-model="bookForm.coverUrl" type="text">
       </div>
       <!--Date de publication -->
       <div>
-        <label class="">Date de publication</label>
-        <input v-model="bookForm.publicationDate" type="date" class="">
+        <label>Date de publication</label>
+        <input v-model="bookForm.publicationDate" type="date">
       </div>
       <!-- Catégorie -->
-      <div class="">
-        <label class="">Catégorie*</label>
-        <select v-model.number="bookForm.categoryId" class="">
+      <div>
+        <label>Catégorie*</label>
+        <select v-model.number="bookForm.categoryId">
           <option :value="null">-- Choisir une catégorie --</option>
           <option v-for="cat in allCategories" :key="cat.id" :value="cat.id">
             {{ cat.name }}
@@ -92,50 +98,50 @@ const {
         </p>
       </div>
       <!-- Série -->
-      <div class="">
-        <label class="">Série</label>
-        <div class="">
-          <select v-model.number="bookForm.seriesId" class="">
+      <div>
+        <label>Série</label>
+        <div>
+          <select v-model.number="bookForm.seriesId">
             <option :value="null">-- Aucune série --</option>
             <option v-for="s in allSeries" :key="s.id" :value="s.id">
               {{ s.name }}
             </option>
           </select>
-          <button type="button" @click="isSeriesModalOpen = true" class="">+</button>
+          <button type="button" @click="isSeriesModalOpen = true">+</button>
         </div>
       </div>
       <!--Genres -->
-      <div class="">
-        <label class="">Genres</label>
+      <div>
+        <label>Genres</label>
 
         <!-- Grille de checkboxes -->
-        <div class="">
-          <div v-for="genre in allGenres" :key="genre.id" class="">
+        <div>
+          <div v-for="genre in allGenres" :key="genre.id">
             <input
                 type="checkbox"
                 :id="'genre-' + genre.id"
                 :value="genre.id"
                 v-model="bookForm.genreIds"
-                class=""
+               
             />
-            <label :for="'genre-' + genre.id" class="">
+            <label :for="'genre-' + genre.id">
               {{ genre.name }}
             </label>
           </div>
         </div>
 
-        <p class="">
+        <p>
           {{ bookForm.genreIds.length }} genre(s) sélectionné(s)
         </p>
       </div>
       <!--Auteurs-->
-      <div class="">
-        <div class="">
-          <h2 class="">Auteurs*</h2>
-          <button type="button" @click="addAuthorRow" class="">
+      <div>
+        <div>
+          <h2>Auteurs*</h2>
+          <button type="button" @click="addAuthorRow">
             + Ajouter un auteur
           </button>
-          <button type="button" @click="isAuthorModalOpen = true" class="">
+          <button type="button" @click="isAuthorModalOpen = true">
             + Créer un nouvel auteur
           </button>
         </div>
@@ -153,17 +159,17 @@ const {
           </p>
         </div>
 
-        <div v-for="(author, index) in bookForm.authors" :key="index" class="">
-          <select v-model.number="author.authorId" class="">
+        <div v-for="(author, index) in bookForm.authors" :key="index">
+          <select v-model.number="author.authorId">
             <option disabled value="0">Choisir un auteur</option>
             <option v-for="a in allAuthors" :key="a.id" :value="a.id">
               {{ a.firstName }} {{ a.lastName }}
             </option>
           </select>
 
-          <div class="">
-            <label class="">Rôle</label>
-            <select v-model="author.role" class="">
+          <div>
+            <label>Rôle</label>
+            <select v-model="author.role">
               <option value="SCENARISTE">Scénariste</option>
               <option value="DESSINATEUR">Dessinateur</option>
               <option value="COLORISTE">Coloriste</option>

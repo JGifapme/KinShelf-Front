@@ -22,7 +22,7 @@ const { book, loading } = useBookDetails();
             Modifier le livre
           </router-link>
           <h2>Fiche Technique</h2>
-          <p><strong>ISBN :</strong> {{ book.isbn }}</p>
+          <p><strong>isbn :</strong> {{ book.isbn }}</p>
           <p><strong>Série : </strong>
             <router-link v-if="book.series" :to="'/series/' + book.series?.slug">
               {{ book.series.name}} ({{ book.series.status }})
@@ -47,6 +47,7 @@ const { book, loading } = useBookDetails();
       <h3>Synopsis</h3>
       <p>{{ book.description }}</p>
     </section>
+
     <!-- Section Sociale (Interactions utilisateurs) -->
     <section>
       <div class="wrapper interUtil">
@@ -94,7 +95,6 @@ const { book, loading } = useBookDetails();
         </div>
       </div>
 
-
     </section>
 
   </div>
@@ -105,7 +105,9 @@ div.wrapper > div{
   text-align: left;
 }
 div.wrapper > div img{
-  max-height: 250px;
+  max-height: 280px;
+  margin: 0 auto 15px auto;
+  display: block;
   box-shadow: rgba(43, 40, 40, 0.33) 5px 3px 10px;
   border: 1px solid #959298;
 }
@@ -115,11 +117,15 @@ div.wrapper p{
 }
 div.wrapper.interUtil{
   margin: 25px 0;
+  padding: 15px;
 }
 div.wrapper.interUtil > div{
+  width: 90%;
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 10px;
   background-color: rgba(255, 255, 255, 0.2);
   padding: 10px;
+  margin: 0 auto 10px auto;
 }
 </style>
