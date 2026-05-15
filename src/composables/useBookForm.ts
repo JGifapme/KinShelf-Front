@@ -9,7 +9,7 @@ export function useBookForm() {
         slug: '',
         isbn: '',
         description: '',
-        numberOfPages: 0,
+        numberOfPages: null as number | null,
         coverUrl: '',
         publicationDate: '',
         publisherId: null as number | null,
@@ -82,7 +82,7 @@ export function useBookForm() {
                     bookForm.slug = data.slug || '';
                     bookForm.isbn = data.isbn || '';
                     bookForm.description = data.description || '';
-                    bookForm.numberOfPages = data.numberOfPages || 0;
+                    bookForm.numberOfPages = data.numberOfPages || null;
                     bookForm.coverUrl = data.coverUrl || '';
                     bookForm.publicationDate = data.publicationDate || '';
                     bookForm.categoryId = data.category?.id || null;
@@ -159,7 +159,7 @@ export function useBookForm() {
                 // Remplissage auto
                 bookForm.title = data.title || '';
                 bookForm.description = data.description || '';
-                bookForm.numberOfPages = data.pageCount || 0;
+                bookForm.numberOfPages = data.pageCount || null;
                 bookForm.coverUrl = data.imageUrl || '';
                 bookForm.publicationDate = data.publicationDate || '';
 

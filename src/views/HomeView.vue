@@ -1,62 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import axios from 'axios'
-
-// On définit une interface pour avoir de l'autocomplétion (comme une classe Java)
-interface Book {
-  id: number;
-  title: string;
-  slug: string;
-  coverUrl?: string;
-}
-
-const books = ref<Book[]>([]) // liste de "Book"
-const searchQuery = ref(''); // Lie cet état au champ input
-const genres = ref<any[]>([]);
-const selectedGenre = ref(''); // Stocke le slug sélectionné
-const users = ref<any[]>([]);
-const selectedUser = ref(''); // Stocke le slug sélectionné
-
-// 1. Charger les catégories au montage
-onMounted(async () => {
-  try {
-    // On charge les genres d'abord
-    const genreRes = await axios.get('http://localhost:8080/api/genres');
-    genres.value = genreRes.data;
-
-    const userRes = await axios.get('http://localhost:8080/api/users');
-    users.value = userRes.data;
-
-    // Ensuite on charge les livres
-    await loadBooks();
-  } catch (error) {
-    console.error("Erreur d'initialisation", error);
-  }
-});
-
-const loadBooks = async () => {
-  try {
-    // On prépare les paramètres pour l'URL
-    const params: any = {};
-    if (searchQuery.value) params.search = searchQuery.value;
-    if (selectedGenre.value) params.genreSlug = selectedGenre.value;
-    if (selectedUser.value) params.userSlug = selectedUser.value;
-
-    const response = await axios.get('http://localhost:8080/api/books', { params });
-    books.value = response.data;
-  } catch (error) {
-    console.error("Erreur lors de la récupération des livres", error);
-  }
-};
-
-let timeout: any;
-// dès que search change, on relance loadBooks
-watch([searchQuery, selectedGenre, selectedUser], () => {
-  clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    loadBooks();
-  }, 500); // Attend 500ms avant de lancer la recherche
-});
+import { bookLibrary } from '../composables/bookLibrary';
+const { searchQuery, selectedCategory, selectedUser, selectedGenre, genres, users, categories, books } = bookLibrary();
 </script>
 
 <template>
@@ -70,6 +14,12 @@ watch([searchQuery, selectedGenre, selectedUser], () => {
           placeholder="Rechercher par titre, série ou auteur..."
           class="search-input"
       />
+      <select v-model="selectedCategory" class="cat-select">
+        <option class="griser" value="">Tous les types</option>
+        <option v-for="cat in categories" :key="cat.id" :value="cat.slug">
+          {{ cat.name }}
+        </option>
+      </select>
       <select v-model="selectedGenre" class="genre-select">
         <option class="griser" value="">Tous les genres</option>
         <option v-for="genre in genres" :key="genre.id" :value="genre.slug">
@@ -78,8 +28,9 @@ watch([searchQuery, selectedGenre, selectedUser], () => {
       </select>
       <select v-model="selectedUser" class="user-select">
         <option class="griser" value="">Tous les livres</option>
+        <option value="all-users">Des utilisateurs</option>
         <option v-for="user in users" :key="user.id" :value="user.slug">
-          livres de {{ user.firstName }}
+          livres de {{ user.username }}
         </option>
       </select>
     </div>
@@ -139,6 +90,10 @@ div.HPlivresMini img{
   background-size: cover;
   box-shadow: rgba(43, 40, 40, 0.33) 5px 3px 10px;
   border: 1px solid #959298;
+  transition: transform .3s;
+}
+div.HPlivresMini:hover img{
+  transform: scale(1.05);
 }
 div.HPlivresMini div.siPasCouv {
   background-color: #34383c;
@@ -153,6 +108,10 @@ div.HPlivresMini div.siPasCouv {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  transition: transform .3s;
+}
+div.HPlivresMini:hover div.siPasCouv {
+  transform: scale(1.05)
 }
 div.HPlivresMini div.siPasCouv h2{
   font-size: 18px;
@@ -173,7 +132,7 @@ p.HPlivresTitre{
   flex-wrap: wrap;
 }
 
-.search-input, .genre-select, .user-select {
+.search-input, .genre-select, .user-select, .cat-select {
   width: 100%;
   max-width: 300px;
   padding: 0.4rem 0.8rem;
@@ -185,11 +144,11 @@ p.HPlivresTitre{
   box-shadow: 2px 2px 5px rgba(177, 96, 28, 0.1);
   transition: all 0.3s ease;
 }
-.genre-select, .user-select {
+.genre-select, .user-select, .cat-select {
   max-width: fit-content;
   padding: 0.4rem 0.5rem;
 }
-.search-input:focus, .genre-select:focus, .user-select:focus {
+.search-input:focus, .genre-select:focus, .user-select:focus, .cat-select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 10px rgba(177, 96, 28, 0.1);
 }

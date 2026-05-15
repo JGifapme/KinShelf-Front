@@ -82,17 +82,17 @@ const {
       <div class="flex flex-col">
         <label class="font-semibold text-sm">Éditeur</label>
         <div class="flex gap-2">
-          <select v-model.number="bookForm.publisherId" class="border p-2 rounded flex-1">
+          <select v-model.number="bookForm.publisherId">
             <option :value="null">-- Choisir un éditeur --</option>
             <option v-for="pub in allPublishers" :key="pub.id" :value="pub.id">
               {{ pub.name }}
             </option>
           </select>
-          <button type="button" @click="isPublisherModalOpen = true" class="bg-purple-500 text-white px-3 rounded">+</button>
+          <button type="button" @click="isPublisherModalOpen = true">+</button>
         </div>
 
         <!-- Aide si l'éditeur de l'API n'a pas été matché -->
-        <p v-if="!bookForm.publisherId && isbnPublisherName" class="text-xs text-amber-600 mt-1">
+        <p v-if="!bookForm.publisherId && isbnPublisherName">
           Suggéré par l'API : <strong>{{ isbnPublisherName }}</strong>
           (cliquez sur + pour l'ajouter)
         </p>
@@ -147,14 +147,14 @@ const {
         </div>
 
         !-- Aide visuelle si on vient de faire une recherche ISBN -->
-        <div v-if="foundAuthorsNames.length > 0" class="bg-amber-50 p-3 rounded-md border border-amber-200 mb-4">
-          <p class="text-sm font-semibold text-amber-800">Auteurs trouvés sur l'API :</p>
-          <div class="flex flex-wrap gap-2 mt-1">
-      <span v-for="name in foundAuthorsNames" :key="name" class="bg-amber-200 px-2 py-1 rounded text-xs text-amber-900">
+        <div v-if="foundAuthorsNames.length > 0">
+          <p>Auteurs trouvés sur l'API :</p>
+          <div>
+      <span v-for="name in foundAuthorsNames" :key="name">
         {{ name }}
       </span>
           </div>
-          <p class="text-[10px] text-amber-700 mt-2">
+          <p>
             Sélectionnez-les manuellement ci-dessous ou créez-les s'ils n'existent pas.
           </p>
         </div>
@@ -176,59 +176,57 @@ const {
             </select>
           </div>
 
-          <button type="button" @click="removeAuthorRow(index)" class="text-red-500 font-bold p-2">
+          <button type="button" @click="removeAuthorRow(index)">
             ✕
           </button>
         </div>
       </div>
 
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <button type="submit">
         Enregistrer le livre
       </button>
     </form>
   </div>
-  <div v-if="isAuthorModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-xl w-96">
-      <h2 class="text-xl font-bold mb-4">Nouvel Auteur</h2>
-
-      <div class="space-y-3">
-        <input v-model="newAuthor.firstName" placeholder="Prénom" class="w-full border p-2 rounded">
-        <input v-model="newAuthor.lastName" placeholder="Nom" class="w-full border p-2 rounded">
+  <div v-if="isAuthorModalOpen" class="modal">
+    <div>
+      <h2>Nouvel Auteur</h2>
+      <div>
+        <input v-model="newAuthor.firstName" placeholder="Prénom">
+        <input v-model="newAuthor.lastName" placeholder="Nom">
       </div>
-
-      <div class="flex justify-end gap-2 mt-6">
-        <button @click="isAuthorModalOpen = false" class="px-4 py-2 text-gray-600">Annuler</button>
-        <button @click="createAuthor" class="px-4 py-2 bg-purple-600 text-white rounded">Créer</button>
+      <div>
+        <button @click="isAuthorModalOpen = false">Annuler</button>
+        <button @click="createAuthor">Créer</button>
       </div>
     </div>
   </div>
-  <div v-if="isPublisherModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
-    <div class="bg-white p-6 rounded-lg shadow-xl w-96">
-      <h2 class="text-xl font-bold mb-4">Nouvel Éditeur</h2>
-      <input v-model="newPublisher.name" placeholder="Nom de l'éditeur" class="w-full border p-2 mb-3 rounded">
-      <div class="flex justify-end gap-2">
-        <button @click="isPublisherModalOpen = false" class="text-gray-500">Annuler</button>
-        <button @click="createPublisher" class="bg-purple-600 text-white px-4 py-2 rounded">Créer</button>
+
+  <div v-if="isPublisherModalOpen" class="modal">
+    <div>
+      <h2>Nouvel Éditeur</h2>
+      <input v-model="newPublisher.name" placeholder="Nom de l'éditeur">
+      <div>
+        <button @click="isPublisherModalOpen = false">Annuler</button>
+        <button @click="createPublisher">Créer</button>
       </div>
     </div>
   </div>
-  <div v-if="isSeriesModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
-    <div class="bg-white p-6 rounded-lg shadow-xl w-96">
-      <h2 class="text-xl font-bold mb-4">Nouvelle Série</h2>
 
-      <label class="block text-sm font-medium mb-1">Nom</label>
-      <input v-model="newSeries.name" placeholder="Titre de la série" class="w-full border p-2 mb-3 rounded">
-
-      <label class="block text-sm font-medium mb-1">Statut</label>
-      <select v-model="newSeries.status" class="w-full border p-2 mb-4 rounded">
+  <div v-if="isSeriesModalOpen" class="modal">
+    <div>
+      <h2>Nouvelle Série</h2>
+      <label>Nom</label>
+      <input v-model="newSeries.name" placeholder="Titre de la série">
+      <br>
+      <label>Statut</label>
+      <select v-model="newSeries.status">
         <option value="EN_COURS">En cours</option>
         <option value="FINIE">Finie</option>
         <option value="ARRET">Arrêtée</option>
       </select>
-
-      <div class="flex justify-end gap-2">
-        <button @click="isSeriesModalOpen = false" class="text-gray-500">Annuler</button>
-        <button @click="createSeries" class="bg-purple-600 text-white px-4 py-2 rounded">Créer</button>
+      <div>
+        <button @click="isSeriesModalOpen = false">Annuler</button>
+        <button @click="createSeries">Créer</button>
       </div>
     </div>
   </div>

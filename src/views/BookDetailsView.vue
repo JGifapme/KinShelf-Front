@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBookDetails } from '../composables/useBookDetails';
-const { book, loading } = useBookDetails();
+const { book, loading, toggleStatus, userStatus, isLoading } = useBookDetails();
 </script>
 
 <template>
@@ -29,11 +29,15 @@ const { book, loading } = useBookDetails();
             </router-link>
             <span v-else>Non</span>
           </p>
-          <p><strong>Éditeur :</strong> {{ book.publisher?.name }}</p>
-          <p><strong>Catégorie :</strong> {{ book.category?.name }}</p>
+          <p><strong>Éditeur :</strong> <router-link :to="'/publisher/' + book.publisher?.slug">{{ book.publisher?.name }}</router-link></p>
+          <p><strong>Catégorie :</strong> <router-link :to="'/category/' + book.category?.slug">{{ book.category?.name }}</router-link></p>
           <p><strong>Pages :</strong> {{ book.numberOfPages }}</p>
           <p><strong>Date de sortie :</strong> {{ book.publicationDate }}</p>
-          <p><strong>Genre(s) :</strong> <span v-for="genre in book.genres" :key="genre.id">{{ genre.name }}&nbsp;</span></p>
+          <p><strong>Genre(s) :</strong> <span v-for="genre in book.genres" :key="genre.id">
+            <router-link :to="'/genre/' + genre.slug">
+              {{ genre.name }}
+            </router-link>
+            &nbsp;</span></p>
           <p><strong>Auteur(s) : </strong>
             <span v-for="(a, index) in book.authors" :key="a.id">
               <router-link :to="'/author/' + a.slug">
@@ -50,33 +54,54 @@ const { book, loading } = useBookDetails();
 
     <!-- Section Sociale (Interactions utilisateurs) -->
     <section>
+      <p>{{ userStatus }}</p>
+
+
+
+      <p v-if="isLoading">Mise à jour en cours...</p>
       <div class="wrapper interUtil">
         <!-- 1. Possesseurs -->
         <div>
+          <button @click="toggleStatus('isOwn')"
+              :class="['btn', userStatus.isOwn ? 'btn-vert' : 'btn-rouge']"
+              :disabled="loading || isLoading">
+            <i v-if="userStatus.isOwn" class="fas fa-check"></i>
+            {{ userStatus.isOwn ? 'Dans ma bibliothèque' : 'Ajouter à ma bibliothèque' }}
+          </button>
           <h3><span>📚</span><br>Possédé par</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter(u => u.isOwn)" :key="bu.userId">
-              <span>{{ bu.userName }}</span>
+            <div v-for="bu in book.bookUsers.filter(u => u.isOwn)" :key="bu.userSlug">
+              <span>{{ bu.username }}</span>
             </div>
             <p v-if="book.bookUsers.filter(u => u.isOwn).length === 0">Personne ne l'a encore.</p>
           </div>
         </div>
         <!-- 2. Lecteurs -->
         <div>
+          <button @click="toggleStatus('isRead')"
+              :class="['btn', userStatus.isRead ? 'btn-vert' : 'btn-rouge']"
+              :disabled="loading || isLoading">
+            {{ userStatus.isRead ? 'Livre lu' : 'Marquer comme lu' }}
+          </button>
           <h3><span>📖</span><br>Lu par</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter(u => u.isRead)" :key="bu.userId">
-              <span>{{ bu.userName }}</span>
+            <div v-for="bu in book.bookUsers.filter(u => u.isRead)" :key="bu.userSlug">
+              <span>{{ bu.username }}</span>
             </div>
             <p v-if="book.bookUsers.filter(u => u.isRead).length === 0">Pas encore de lecture.</p>
           </div>
         </div>
         <!-- 3. Wishlist -->
         <div>
+          <button @click="toggleStatus('isInterested')"
+                  :class="['btn', userStatus.isInterested ? 'btn-vert' : 'btn-rouge']"
+                  :disabled="loading || isLoading">
+            {{ userStatus.isInterested ? 'Dans la wishlist' : 'Ajouter à la whishlist' }}
+          </button>
           <h3><span>✨</span><br>Voudrait le lire</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter(u => u.isInterested)" :key="bu.userId">
-              <span>{{ bu.userName }}</span>
+            <div v-for="bu in book.bookUsers.filter(u => u.isInterested)" :key="bu.userSlug">
+              <span>{{ bu.username }}</span>
             </div>
             <p v-if="book.bookUsers.filter(u => u.isInterested).length === 0">Dans aucune wishlist.</p>
           </div>
@@ -86,9 +111,9 @@ const { book, loading } = useBookDetails();
 
       <h3><span>★</span> Critiques et notes</h3>
       <div>
-        <div v-for="bu in book.bookUsers.filter(u => u.rating || u.comment)" :key="bu.userId">
+        <div v-for="bu in book.bookUsers.filter(u => u.rating || u.comment)" :key="bu.userSlug">
           <div>
-            <span>{{ bu.userName }}</span>
+            <span>{{ bu.username }}</span>
             <div><span v-for="i in 5" :key="i">{{ i <= bu.rating ? '★' : '☆' }}</span></div>
           </div>
           <p v-if="bu.comment">"{{ bu.comment }}"</p>
