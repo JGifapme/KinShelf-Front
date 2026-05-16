@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBookDetails } from '../composables/useBookDetails';
-const { book, loading, toggleStatus, userStatus, isLoading } = useBookDetails();
+const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview,
+  cancelEditReview, startEditReview, submitReview, pendingComment, pendingRating, otherUsersReviews } = useBookDetails();
 </script>
 
 <template>
@@ -41,7 +42,7 @@ const { book, loading, toggleStatus, userStatus, isLoading } = useBookDetails();
           <p><strong>Auteur(s) : </strong>
             <span v-for="(a, index) in book.authors" :key="a.id">
               <router-link :to="'/author/' + a.slug">
-                {{ a.fullName }} <span class="author-role">({{ a.role.toLowerCase() }})</span>
+                {{ a.name }} <span class="author-role">({{ a.role.toLowerCase() }})</span>
               </router-link>
               <span v-if="index < book.authors.length - 1">, </span>
             </span>
@@ -55,9 +56,6 @@ const { book, loading, toggleStatus, userStatus, isLoading } = useBookDetails();
     <!-- Section Sociale (Interactions utilisateurs) -->
     <section>
       <p>{{ userStatus }}</p>
-
-
-
       <p v-if="isLoading">Mise à jour en cours...</p>
       <div class="wrapper interUtil">
         <!-- 1. Possesseurs -->
@@ -70,8 +68,10 @@ const { book, loading, toggleStatus, userStatus, isLoading } = useBookDetails();
           </button>
           <h3><span>📚</span><br>Possédé par</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter(u => u.isOwn)" :key="bu.userSlug">
+            <div v-for="bu in book.bookUsers.filter(u => u.isOwn)" :key="bu.id">
+              <router-link :to="'/user/' + bu.userSlug">
               <span>{{ bu.username }}</span>
+              </router-link>
             </div>
             <p v-if="book.bookUsers.filter(u => u.isOwn).length === 0">Personne ne l'a encore.</p>
           </div>
@@ -110,8 +110,27 @@ const { book, loading, toggleStatus, userStatus, isLoading } = useBookDetails();
       <!-- Avis et Notes -->
 
       <h3><span>★</span> Critiques et notes</h3>
+
+        <!-- affiche le commentaire de l'utilisateur connecté (mais pas si il modifie/crée son avis) -->
+        <div class="avisUtil" v-if="!isEditingReview">
+          <p><strong>Mon commentaire :</strong></p>
+          <div><span v-for="i in 5" :key="i">{{ i <= userStatus.rating ? '★' : '☆' }}</span></div>
+          <p>{{ userStatus.comment || "Aucun commentaire" }}</p>
+          <button class="btn" @click="startEditReview">
+            {{ userStatus.rating || userStatus.comment ? "Modifier" : "Ajouter une note" }}
+          </button>
+        </div>
+
+        <!-- Formulaire pour donner son avis + commentaires -->
+        <div class="avisUtil" v-else>
+          <input type="number" v-model="pendingRating" min="0" max="5" placeholder="Note (0-5)" />
+          <textarea v-model="pendingComment" placeholder="Votre commentaire..." />
+          <button @click="submitReview" :disabled="isLoading">Envoyer</button>
+          <button @click="cancelEditReview">Annuler</button>
+        </div>
+      <!-- Avis + commentaires des autres utilisateurs -->
       <div>
-        <div v-for="bu in book.bookUsers.filter(u => u.rating || u.comment)" :key="bu.userSlug">
+        <div class="avisUtil" v-for="bu in otherUsersReviews.filter(u => (u.rating || u.comment))" :key="bu.userSlug">
           <div>
             <span>{{ bu.username }}</span>
             <div><span v-for="i in 5" :key="i">{{ i <= bu.rating ? '★' : '☆' }}</span></div>
@@ -144,7 +163,7 @@ div.wrapper.interUtil{
   margin: 25px 0;
   padding: 15px;
 }
-div.wrapper.interUtil > div{
+div.wrapper.interUtil > div, div.avisUtil{
   width: 90%;
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.45);
@@ -153,4 +172,5 @@ div.wrapper.interUtil > div{
   padding: 10px;
   margin: 0 auto 10px auto;
 }
+
 </style>

@@ -1,16 +1,20 @@
-<template>
-  <!--<nav class="p-4 bg-gray-800 text-white flex gap-4">
-    <RouterLink to="/" class="hover:text-blue-400">Accueil</RouterLink>
-    <RouterLink to="/add-book" class="hover:text-blue-400">Ajouter un livre</RouterLink>
-  </nav>
-  La Navbar sera affichée en haut sur TOUTES les pages -->
-  <Navbar />
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import NavBar from './views/Navbar.vue';
 
-  <main class="container mx-auto p-4">
+const route = useRoute();
+
+const hideNavbar = computed(() =>
+    ['Login', 'Register'].includes(route.name as string)
+);
+</script>
+<template>
+
+  <NavBar v-if="!hideNavbar" />
+
+  <main class="container">
     <RouterView />
   </main>
 
 </template>
-<script setup lang="ts">
-import Navbar from "./views/Navbar.vue";
-</script>

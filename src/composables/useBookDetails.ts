@@ -1,15 +1,22 @@
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, computed} from 'vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '../stores/useAuthStore';
 import axios from 'axios';
 import type { BookUserStatus } from '../types/BookUser';
 
 // Si tu es dans un fichier .ts à part, il faut passer les IDs en arguments
-export function useBookDetails(userId: number) {
+export function useBookDetails() {
     const route = useRoute();
     const book = ref<any>(null);
     const loading = ref(true); // État du chargement initial
     const isLoading = ref(false); // État pour le bouton (patch)
-    userId = 4;// a modifié
+    const isEditingReview = ref(false); // mode édition activé ou non
+    const pendingRating = ref(0);       // valeur temporaire pendant l'édition
+    const pendingComment = ref("");     // valeur temporaire pendant l'édition
+    const authStore = useAuthStore();
+    const userId = authStore.user?.id;
+    //const userSlug = authStore.user?.slug;
+    const currentUserSlug = ref("");
 
     const userStatus = ref<BookUserStatus>({
         isOwn: false,
@@ -24,6 +31,7 @@ export function useBookDetails(userId: number) {
         try {
             const resUser = await axios.get(`http://localhost:8080/api/users/id/${userId}`);
             const userSlug = resUser.data.slug;
+            currentUserSlug.value = resUser.data.slug;
 
             const slug = route.params.slug;
             const res = await axios.get(`http://localhost:8080/api/books/${slug}`);
@@ -77,8 +85,48 @@ export function useBookDetails(userId: number) {
             console.warn(`Le champ ${field} n'est pas un booléen et ne peut pas être switché.`);
         }
     };
+    const startEditReview = () => {
+        // On copie les valeurs actuelles dans les champs temporaires
+        pendingRating.value = userStatus.value.rating;
+        pendingComment.value = userStatus.value.comment;
+        isEditingReview.value = true;
+    };
+
+    const cancelEditReview = () => {
+        isEditingReview.value = false;
+    };
+
+    const submitReview = async () => {
+        if (!book.value) return;
+        isLoading.value = true;
+
+        try {
+            await axios.patch(
+                `http://localhost:8080/api/books/${book.value.id}/status/${userId}`,
+                {
+                    ...userStatus.value,       // on garde les booléens existants
+                    rating: pendingRating.value,
+                    comment: pendingComment.value
+                }
+            );
+            await fetchBookDetails();
+            isEditingReview.value = false;
+        } catch (error) {
+            console.error("Erreur lors de l'envoi de la note:", error);
+        } finally {
+            isLoading.value = false;
+        }
+    };
+
+    const otherUsersReviews = computed(() =>
+        book.value?.bookUsers.filter(u =>
+            (u.rating || u.comment) && u.userSlug !== currentUserSlug.value
+        ) ?? []
+    );
 
     onMounted(fetchBookDetails);
 
-    return { book, loading, toggleStatus, userStatus, isLoading };
+    return { book, loading, toggleStatus, userStatus, isLoading,
+        isEditingReview, pendingRating, pendingComment,
+        startEditReview, cancelEditReview, submitReview, otherUsersReviews };
 }

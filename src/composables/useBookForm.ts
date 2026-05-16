@@ -38,7 +38,7 @@ export function useBookForm() {
     const isSeriesModalOpen = ref(false);
 
     // 5. nouveau éléments
-    const newAuthor = reactive({ firstName: '', lastName: '' });
+    const newAuthor = reactive({ name: ''});
     const newSeries = reactive({
         name: '',
         status: 'EN_COURS' // Valeur par défaut
@@ -135,12 +135,11 @@ export function useBookForm() {
         names.forEach(name => {
             const apiNameClean = name.toLowerCase();
             const found = allAuthors.value.find(a =>
-                apiNameClean.includes(a.lastName.toLowerCase()) ||
-                apiNameClean.includes(a.firstName.toLowerCase())
+                apiNameClean.includes(a.name.toLowerCase())
             );
 
             if (found && !bookForm.authors.find(ba => ba.authorId === found.id)) {
-                bookForm.authors.push({ authorId: found.id, role: 'SCENARISTE' });
+                bookForm.authors.push({ authorId: found.id, role: 'AUTEUR' });
             }
         });
     };
@@ -205,7 +204,7 @@ export function useBookForm() {
 
     // 4. Actions
     const addAuthorRow = () => {
-        bookForm.authors.push({ authorId: 0, role: 'SCENARISTE' });
+        bookForm.authors.push({ authorId: 0, role: 'AUTEUR' });
     };
     const removeAuthorRow = (index: number) => {
         bookForm.authors.splice(index, 1);
@@ -220,8 +219,7 @@ export function useBookForm() {
         if (res.ok) {
             allAuthors.value.push(retourJson);
             isAuthorModalOpen.value = false;
-            newAuthor.firstName = '';
-            newAuthor.lastName = '';
+            newAuthor.name = '';
         }
         else {
             alert(retourJson.message);
