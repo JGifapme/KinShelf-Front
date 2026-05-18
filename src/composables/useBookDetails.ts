@@ -71,7 +71,7 @@ export function useBookDetails() {
 
             try {
                 await axios.patch(
-                    `http://localhost:8080/api/books/${book.value.id}/status/${userId}`,
+                    `http://localhost:8080/api/books/${book.value.id}/status`,
                     userStatus.value
                 );
                 await fetchBookDetails();

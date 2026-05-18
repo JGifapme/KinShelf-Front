@@ -5,6 +5,7 @@ import BookDetailsView from "../views/BookDetailsView.vue";
 import EntityDetailView from "../views/EntityDetailView.vue";
 import {useAuthStore} from "../stores/useAuthStore.ts";
 
+//Défini les chemins d'accès à l'application, les urls
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -35,11 +36,6 @@ const router = createRouter({
             props: true
         },
         {
-            path: '/author/:slug',
-            name: 'AuthorProfile',
-            component: () => import('../views/AuthorView.vue')
-        },
-        {
             path: '/:type/:slug', // ex: /genre/fantasy ou /category/roman ou publisher/glenat
             name: 'EntityDetail',
             component: EntityDetailView
@@ -56,16 +52,16 @@ const router = createRouter({
         }
     ]
 })
-
+// Avant de définir ou l'utilisateur va être envoyé :
 router.beforeEach((to) => {
     const authStore = useAuthStore();
     const publicRoutes = ['Login', 'Register'];
-
+    // On vérifie si il est connecté, sinon on l'envoie sur la page login
     if (!authStore.isAuthenticated && !publicRoutes.includes(to.name as string)) {
         return { name: 'Login' };
     }
 
-    // Si déjà connecté, pas besoin d'aller sur login/register
+    // Si il est déjà connecté, pas besoin d'aller sur login/register, il va sur la homepage
     if (authStore.isAuthenticated && publicRoutes.includes(to.name as string)) {
         return { name: 'Home' };
     }

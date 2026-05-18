@@ -1,5 +1,6 @@
 import {reactive, ref, onMounted, computed} from 'vue';
 import {useRoute, useRouter} from "vue-router";
+import axios from 'axios';
 
 export function useBookForm() {
     // 1. État du formulaire
@@ -54,11 +55,11 @@ export function useBookForm() {
     onMounted(async () => {
         try {
             const [auth, pub, cat, gen, ser] = await Promise.all([
-                fetch('http://localhost:8080/api/authors').then(res => res.json()),
-                fetch('http://localhost:8080/api/publishers').then(res => res.json()),
-                fetch('http://localhost:8080/api/categories').then(res => res.json()),
-                fetch('http://localhost:8080/api/genres').then(res => res.json()),
-                fetch('http://localhost:8080/api/series').then(res => res.json())
+                axios.get('http://localhost:8080/api/authors').then(res => res.data),
+                axios.get('http://localhost:8080/api/publishers').then(res => res.data),
+                axios.get('http://localhost:8080/api/categories').then(res => res.data),
+                axios.get('http://localhost:8080/api/genres').then(res => res.data),
+                axios.get('http://localhost:8080/api/series').then(res => res.data)
             ]);
             allAuthors.value = auth;
             allPublishers.value = pub;
@@ -73,9 +74,8 @@ export function useBookForm() {
             try {
                 const slug = route.params.slug;
                 //alert('slug : '+slug);
-                const res = await fetch(`http://localhost:8080/api/books/${slug}`);
-                const data = await res.json();
-                if (res.ok) {
+                const res = await axios.get(`http://localhost:8080/api/books/${slug}`);
+                const data = res.data;
                     // Remplissage auto
                     bookForm.id = data.id || '';
                     bookForm.title = data.title || '';
@@ -93,12 +93,8 @@ export function useBookForm() {
                         role: a.role
                     }));
                     bookForm.genreIds = (data.genres as any[]).map((g: any) => g.id) || [];
-                }
-                else {
-                    alert(data.message);
-                }
-            } catch (err) {
-                console.error("Erreur lors de la récupération des données", err);
+            } catch (err: any) {
+                alert(err.response?.data?.message || "Erreur lors de la récupération des données.");
             } finally {
                 isLoadingIsbn.value = false;
             }
@@ -152,9 +148,8 @@ export function useBookForm() {
         isbnPublisherName.value = '';
 
         try {
-            const res = await fetch(`http://localhost:8080/api/isbn/${isbnSearch.value}`);
-            const data = await res.json();
-            if (res.ok) {
+            const res = await axios.get(`http://localhost:8080/api/isbn/${isbnSearch.value}`);
+            const data = res.data;
                 // Remplissage auto
                 bookForm.title = data.title || '';
                 bookForm.description = data.description || '';
@@ -165,40 +160,24 @@ export function useBookForm() {
                 // Lancement des matchings
                 if (data.publisher) matchPublisherAutomatically(data.publisher);
                 if (data.authors) matchAuthorsAutomatically(data.authors);
-            }
-            else {
-                alert(data.message);
-            }
-        } catch (err) {
-            console.error("Erreur ISBN:", err);
+        } catch (err: any) {
+            alert(err.response?.data?.message || "Erreur avec l'isbn.");
         } finally {
             isLoadingIsbn.value = false;
         }
     };
 
     const submitBook = async () => {
-        let res;
-        if (isEditMode.value) {
-            res = await fetch(`http://localhost:8080/api/books/${bookForm.id}`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(bookForm)
-            });
-        }
-        else {
-            res = await fetch('http://localhost:8080/api/books', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(bookForm)
-            });
-        }
-        const retourJson = await res.json();//récupère le json du livre créé ou de l'erreur éventuelle
-        if (res.ok) {
-            console.log(retourJson);
+        try {
+            const res = isEditMode.value
+                ? await axios.patch(`http://localhost:8080/api/books/${bookForm.id}`, bookForm)
+                : await axios.post('http://localhost:8080/api/books', bookForm);
+
+            console.log(res.data);
             alert('Livre enregistré !');
-            router.push(`/book/${retourJson.slug}`);
-        } else {
-            alert(retourJson.message);
+            router.push(`/book/${res.data.slug}`);
+        } catch (err: any) {
+            alert(err.response?.data?.message || "Une erreur est survenue.");
         }
     };
 
@@ -210,55 +189,37 @@ export function useBookForm() {
         bookForm.authors.splice(index, 1);
     };
     const createAuthor = async () => {
-        const res = await fetch('http://localhost:8080/api/authors', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newAuthor)
-        });
-        const retourJson = await res.json();
-        if (res.ok) {
-            allAuthors.value.push(retourJson);
+        try {
+            const res = await axios.post('http://localhost:8080/api/authors', newAuthor);
+            allAuthors.value.push(res.data);
             isAuthorModalOpen.value = false;
             newAuthor.name = '';
-        }
-        else {
-            alert(retourJson.message);
+        } catch (err: any) {
+            alert(err.response?.data?.message || "Une erreur est survenue.");
         }
     };
     const createPublisher = async () => {
-        const res = await fetch('http://localhost:8080/api/publishers', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newPublisher)
-        });
-        const retourJson = await res.json();
-        if (res.ok) {
-            allPublishers.value.push(retourJson);
-            bookForm.publisherId = retourJson.id; // On le sélectionne direct !
+        try {
+            const res = await axios.post('http://localhost:8080/api/publishers', newPublisher);
+            allPublishers.value.push(res.data);
+            bookForm.publisherId = res.data.id;
             isPublisherModalOpen.value = false;
             newPublisher.name = '';
-        }
-        else {
-            alert(retourJson.message);
+        } catch (err: any) {
+            alert(err.response?.data?.message || "Une erreur est survenue.");
         }
     };
     // 3. Action pour créer la série
     const createSeries = async () => {
-        const res = await fetch('http://localhost:8080/api/series', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newSeries)
-        });
-        const retourJson = await res.json();
-        if (res.ok) {
-            allSeries.value.push(retourJson);
-            bookForm.seriesId = retourJson.id; // On la sélectionne direct
+        try {
+            const res = await axios.post('http://localhost:8080/api/series', newSeries);
+            allSeries.value.push(res.data);
+            bookForm.seriesId = res.data.id;
             isSeriesModalOpen.value = false;
             newSeries.name = '';
             newSeries.status = 'EN_COURS';
-        }
-        else {
-            alert(retourJson.message);
+        } catch (err: any) {
+            alert(err.response?.data?.message || "Une erreur est survenue.");
         }
     };
 

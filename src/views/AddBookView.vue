@@ -154,6 +154,8 @@ const {
   <div v-if="isAuthorModalOpen" class="modal">
     <div>
       <h2>Nouvel Auteur</h2>
+      <p>Veuillez écrire sous le format : Prénom Nom.</p>
+      <p>Pour les pseudos, soit le pseudo seul soit : Pseudo (Prénom, Nom)</p>
       <div>
         <input v-model="newAuthor.name" placeholder="Nom">
       </div>

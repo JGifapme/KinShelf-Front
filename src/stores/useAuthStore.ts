@@ -48,7 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
         roles.value = res.data.roles;
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('roles', JSON.stringify(res.data.roles));
-        await fetchUserInfo(); // ← récupère id et slug après register
+        await fetchUserInfo(); // récupère l'id et le slug après s'être inscrit
     };
 
     const logout = () => {

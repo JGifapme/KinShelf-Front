@@ -12,6 +12,7 @@ interface BookSearchOptions {
     defaultGenreSlug?: string;
     defaultCategorySlug?: string;
     defaultUserSlug?: string;
+    defaultPublisherSlug?: string;
 }
 
 export function bookLibrary(options: BookSearchOptions = {}) {
@@ -25,6 +26,7 @@ export function bookLibrary(options: BookSearchOptions = {}) {
     const selectedGenre = ref(options.defaultGenreSlug || '');
     const selectedCategory = ref(options.defaultCategorySlug || '');
     const selectedUser = ref(options.defaultUserSlug || '');
+    const selectedPublisher = ref(options.defaultPublisherSlug || '');
     const currentPage = ref(0);
     const totalPages = ref(0);
     const totalElements = ref(0);
@@ -59,6 +61,7 @@ export function bookLibrary(options: BookSearchOptions = {}) {
             if (selectedGenre.value) params.genreSlug = selectedGenre.value;
             if (selectedUser.value) params.userSlug = selectedUser.value;
             if (selectedCategory.value) params.categorySlug = selectedCategory.value;
+            if (selectedPublisher.value) params.publisherSlug = selectedPublisher.value;
 
             const response = await axios.get('http://localhost:8080/api/books', {params});
             books.value = response.data.content;       // on doit ajouter .content car le json renvoie les livres dans un []content
