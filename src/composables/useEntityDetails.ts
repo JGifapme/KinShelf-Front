@@ -1,6 +1,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import router from "../router";
 
 interface Book {
     id: number;
@@ -15,6 +16,7 @@ interface EntityDetails {
     books: Book[];
 }
 
+//On déclare les différents chemin/url avec lesquels on accède a cette page ex: /series/le-seigneur-des-anneaux ou /author/herge
 const ENTITY_ENDPOINTS: Record<string, string> = {
     author: 'authors',
     publisher: 'publishers',
@@ -45,8 +47,11 @@ export function useEntityDetails() {
 
             const res = await axios.get(`http://localhost:8080/api/${endpoint}/${slug}`);
             entity.value = res.data;
-        } catch (err) {
-            error.value = "Erreur lors du chargement.";
+        } catch (err:any) {
+            alert(err.response?.data?.message || "Une erreur est survenue.");
+            if (err.response?.status === 404 || !err.response) {
+                await router.push({name: 'Home'});
+            }
             console.error(err);
         } finally {
             loading.value = false;

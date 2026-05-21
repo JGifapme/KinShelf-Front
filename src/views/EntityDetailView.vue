@@ -21,7 +21,6 @@ const { books, searchQuery, currentPage, totalPages, nextPage, prevPage, goToPag
   selectedCategory, selectedUser, users, genres, categories, totalElements } = bookLibrary({
     defaultGenreSlug:    type === 'genre'     ? slug : undefined,
       defaultCategorySlug: type === 'category'  ? slug : undefined,
-      defaultUserSlug:     type === 'author'    ? slug : undefined,
     defaultPublisherSlug:     type === 'publisher'    ? slug : undefined,
 });
 </script>

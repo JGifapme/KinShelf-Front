@@ -3,21 +3,23 @@ import { useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/useAuthStore';
 import axios from 'axios';
 import type { BookUserStatus } from '../types/BookUser';
+import router from "../router";
 
-// Si tu es dans un fichier .ts à part, il faut passer les IDs en arguments
 export function useBookDetails() {
     const route = useRoute();
     const book = ref<any>(null);
     const loading = ref(true); // État du chargement initial
     const isLoading = ref(false); // État pour le bouton (patch)
     const isEditingReview = ref(false); // mode édition activé ou non
-    const pendingRating = ref(0);       // valeur temporaire pendant l'édition
-    const pendingComment = ref("");     // valeur temporaire pendant l'édition
-    const authStore = useAuthStore();
-    const userId = authStore.user?.id;
-    //const userSlug = authStore.user?.slug;
-    const currentUserSlug = ref("");
+    const pendingRating = ref(0); // valeur temporaire pendant l'édition
+    const pendingComment = ref(""); // valeur temporaire pendant l'édition
 
+    //on récupère le slug (unique) de l'utilisateur connecté grâce à son jeton jwt
+    const authStore = useAuthStore();
+    //const userId = authStore.user?.id; récupérer l'id si nécessaire
+    const userSlug = authStore.user?.slug;
+
+    //initialisation du user status (lu, possédé, ...)
     const userStatus = ref<BookUserStatus>({
         isOwn: false,
         isRead: false,
@@ -29,17 +31,14 @@ export function useBookDetails() {
     const fetchBookDetails = async () => {
         loading.value = true;
         try {
-            const resUser = await axios.get(`http://localhost:8080/api/users/id/${userId}`);
-            const userSlug = resUser.data.slug;
-            currentUserSlug.value = resUser.data.slug;
-
+            //on récupère les données du livre avec les données de lecture/possession des différents utilisateurs
             const slug = route.params.slug;
             const res = await axios.get(`http://localhost:8080/api/books/${slug}`);
             book.value = res.data;
 
             if (res.data.bookUsers && res.data.bookUsers.length > 0) {
-                const data = res.data.bookUsers.find(u => u.userSlug === userSlug)
-
+                //on récupère les infos de lecture/possession, ... de l'utilisateur connecté
+                const data = res.data.bookUsers.find((u:any) => u.userSlug === userSlug)
                 userStatus.value = {
                     isOwn: data.isOwn || false,
                     isRead: data.isRead || false,
@@ -48,8 +47,12 @@ export function useBookDetails() {
                     comment: data.comment || ""
                 };
             }
-        } catch (err) {
-            console.error("Erreur détails livre:", err);
+        } catch (err : any) {
+            alert(err.response?.data?.message || "Une erreur est survenue.");
+            //si le livre n'est pas trouvé pour cette url, renvoie vers la page d'accueil.
+            if (err.response?.status === 404 || !err.response) {
+                await router.push({name: 'Home'});
+            }
         } finally {
             loading.value = false;
         }
@@ -58,7 +61,7 @@ export function useBookDetails() {
     const toggleStatus = async (field: keyof BookUserStatus) => {
         if (!book.value) return;
 
-        // On récupère la valeur actuelle
+        // On récupère la valeur actuelle : lu/pas lu, ...
         const currentValue = userStatus.value[field];
 
         // Sécurité TypeScript : On vérifie explicitement que c'est un booléen
@@ -71,6 +74,8 @@ export function useBookDetails() {
 
             try {
                 await axios.patch(
+                    // pour cet endpoint le back-end récupère l'utilisateur connecté via le jwt token
+                    // on ne doit pas préciser l'utilisateur dans le front
                     `http://localhost:8080/api/books/${book.value.id}/status`,
                     userStatus.value
                 );
@@ -99,13 +104,14 @@ export function useBookDetails() {
     const submitReview = async () => {
         if (!book.value) return;
         isLoading.value = true;
-
         try {
             await axios.patch(
-                `http://localhost:8080/api/books/${book.value.id}/status/${userId}`,
+                // pour cet endpoint le back-end récupère l'utilisateur connecté via le jwt token
+                // on ne doit pas préciser l'utilisateur dans le front
+                `http://localhost:8080/api/books/${book.value.id}/status`,
                 {
                     ...userStatus.value,       // on garde les booléens existants
-                    rating: pendingRating.value,
+                    rating: pendingRating.value, // et on met à jour la note et le commentaire
                     comment: pendingComment.value
                 }
             );
@@ -119,8 +125,8 @@ export function useBookDetails() {
     };
 
     const otherUsersReviews = computed(() =>
-        book.value?.bookUsers.filter(u =>
-            (u.rating || u.comment) && u.userSlug !== currentUserSlug.value
+        book.value?.bookUsers.filter((u:any) =>
+            (u.rating || u.comment) && u.userSlug !== userSlug
         ) ?? []
     );
 

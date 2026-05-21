@@ -1,6 +1,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import router from "../router";
 
 interface Book {
     id: number;
@@ -30,9 +31,12 @@ export function useUserProfile() {
             const slug = route.params.slug as string;
             const res = await axios.get(`http://localhost:8080/api/users/${slug}`);
             profile.value = res.data;
-        } catch (err) {
+        } catch (err:any) {
             error.value = "Utilisateur introuvable.";
             console.error(err);
+            if (err.response?.status === 404 || !err.response) {
+                await router.push({name: 'Home'});
+            }
         } finally {
             loading.value = false;
         }
