@@ -29,7 +29,7 @@ export function useUserProfile() {
         error.value = null;
         try {
             const slug = route.params.slug as string;
-            const res = await axios.get(`http://localhost:8080/api/users/${slug}`);
+            const res = await axios.get(`/api/users/${slug}`);
             profile.value = res.data;
         } catch (err:any) {
             error.value = "Utilisateur introuvable.";

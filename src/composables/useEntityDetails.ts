@@ -45,7 +45,7 @@ export function useEntityDetails() {
                 return;
             }
 
-            const res = await axios.get(`http://localhost:8080/api/${endpoint}/${slug}`);
+            const res = await axios.get(`/api/${endpoint}/${slug}`);
             entity.value = res.data;
         } catch (err:any) {
             alert(err.response?.data?.message || "Une erreur est survenue.");

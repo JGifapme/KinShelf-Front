@@ -1,9 +1,12 @@
-import './config/axios.ts';
+import axios from 'axios';
 import { createApp } from 'vue'
 import { createPinia } from 'pinia';
 import App from './App.vue'
 import router from './router' // Importe ton fichier router
 import './style.css'
+
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.withCredentials = true;
 
 const app = createApp(App);
 

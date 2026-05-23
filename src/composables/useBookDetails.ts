@@ -33,7 +33,7 @@ export function useBookDetails() {
         try {
             //on récupère les données du livre avec les données de lecture/possession des différents utilisateurs
             const slug = route.params.slug;
-            const res = await axios.get(`http://localhost:8080/api/books/${slug}`);
+            const res = await axios.get(`/api/books/${slug}`);
             book.value = res.data;
 
             if (res.data.bookUsers && res.data.bookUsers.length > 0) {
@@ -76,7 +76,7 @@ export function useBookDetails() {
                 await axios.patch(
                     // pour cet endpoint le back-end récupère l'utilisateur connecté via le jwt token
                     // on ne doit pas préciser l'utilisateur dans le front
-                    `http://localhost:8080/api/books/${book.value.id}/status`,
+                    `/api/books/${book.value.id}/status`,
                     userStatus.value
                 );
                 await fetchBookDetails();
@@ -108,7 +108,7 @@ export function useBookDetails() {
             await axios.patch(
                 // pour cet endpoint le back-end récupère l'utilisateur connecté via le jwt token
                 // on ne doit pas préciser l'utilisateur dans le front
-                `http://localhost:8080/api/books/${book.value.id}/status`,
+                `/api/books/${book.value.id}/status`,
                 {
                     ...userStatus.value,       // on garde les booléens existants
                     rating: pendingRating.value, // et on met à jour la note et le commentaire

@@ -15,10 +15,10 @@ const closeMenu = () => {
   isOpen.value = false;
 };
 
-const handleLogout = () => {
-  authStore.logout();
+const handleLogout = async () => {
+  await authStore.logout();
   closeMenu();
-  router.push({ name: 'Login' });
+  await router.push({name: 'Login'});
 };
 </script>
 

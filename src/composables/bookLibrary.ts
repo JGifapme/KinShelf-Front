@@ -35,9 +35,9 @@ export function bookLibrary(options: BookSearchOptions = {}) {
         try {
             // On charge les genres, catégories et user d'abord
             const [genreRes, catRes, userRes] = await Promise.all([
-                axios.get('http://localhost:8080/api/genres'),
-                axios.get('http://localhost:8080/api/categories'),
-                axios.get('http://localhost:8080/api/users')
+                axios.get('/api/genres'),
+                axios.get('/api/categories'),
+                axios.get('/api/users')
             ]);
             genres.value = genreRes.data;
             categories.value = catRes.data;
@@ -63,7 +63,7 @@ export function bookLibrary(options: BookSearchOptions = {}) {
             if (selectedCategory.value) params.categorySlug = selectedCategory.value;
             if (selectedPublisher.value) params.publisherSlug = selectedPublisher.value;
 
-            const response = await axios.get('http://localhost:8080/api/books', {params});
+            const response = await axios.get('/api/books', {params});
             books.value = response.data.content;       // on doit ajouter .content car le json renvoie les livres dans un []content
             totalPages.value = response.data.page.totalPages;
             totalElements.value = response.data.page.totalElements;

@@ -55,11 +55,11 @@ export function useBookForm() {
     onMounted(async () => {
         try {
             const [auth, pub, cat, gen, ser] = await Promise.all([
-                axios.get('http://localhost:8080/api/authors').then(res => res.data),
-                axios.get('http://localhost:8080/api/publishers').then(res => res.data),
-                axios.get('http://localhost:8080/api/categories').then(res => res.data),
-                axios.get('http://localhost:8080/api/genres').then(res => res.data),
-                axios.get('http://localhost:8080/api/series').then(res => res.data)
+                axios.get('/api/authors').then(res => res.data),
+                axios.get('/api/publishers').then(res => res.data),
+                axios.get('/api/categories').then(res => res.data),
+                axios.get('/api/genres').then(res => res.data),
+                axios.get('/api/series').then(res => res.data)
             ]);
             allAuthors.value = auth;
             allPublishers.value = pub;
@@ -74,7 +74,7 @@ export function useBookForm() {
             try {
                 const slug = route.params.slug;
                 //alert('slug : '+slug);
-                const res = await axios.get(`http://localhost:8080/api/books/${slug}`);
+                const res = await axios.get(`/api/books/${slug}`);
                 const data = res.data;
                     // Remplissage auto
                     bookForm.id = data.id || '';
@@ -148,7 +148,7 @@ export function useBookForm() {
         isbnPublisherName.value = '';
 
         try {
-            const res = await axios.get(`http://localhost:8080/api/isbn/${isbnSearch.value}`);
+            const res = await axios.get(`/api/isbn/${isbnSearch.value}`);
             const data = res.data;
                 // Remplissage auto
                 bookForm.title = data.title || '';
@@ -170,8 +170,8 @@ export function useBookForm() {
     const submitBook = async () => {
         try {
             const res = isEditMode.value
-                ? await axios.patch(`http://localhost:8080/api/books/${bookForm.id}`, bookForm)
-                : await axios.post('http://localhost:8080/api/books', bookForm);
+                ? await axios.patch(`/api/books/${bookForm.id}`, bookForm)
+                : await axios.post('/api/books', bookForm);
 
             console.log(res.data);
             alert('Livre enregistré !');
@@ -190,7 +190,7 @@ export function useBookForm() {
     };
     const createAuthor = async () => {
         try {
-            const res = await axios.post('http://localhost:8080/api/authors', newAuthor);
+            const res = await axios.post('/api/authors', newAuthor);
             allAuthors.value.push(res.data);
             isAuthorModalOpen.value = false;
             newAuthor.name = '';
@@ -200,7 +200,7 @@ export function useBookForm() {
     };
     const createPublisher = async () => {
         try {
-            const res = await axios.post('http://localhost:8080/api/publishers', newPublisher);
+            const res = await axios.post('/api/publishers', newPublisher);
             allPublishers.value.push(res.data);
             bookForm.publisherId = res.data.id;
             isPublisherModalOpen.value = false;
@@ -212,7 +212,7 @@ export function useBookForm() {
     // 3. Action pour créer la série
     const createSeries = async () => {
         try {
-            const res = await axios.post('http://localhost:8080/api/series', newSeries);
+            const res = await axios.post('/api/series', newSeries);
             allSeries.value.push(res.data);
             bookForm.seriesId = res.data.id;
             isSeriesModalOpen.value = false;
