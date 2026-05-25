@@ -1,4 +1,5 @@
 import axios from 'axios';
+import './config/axios.ts';
 import { createApp } from 'vue'
 import { createPinia } from 'pinia';
 import App from './App.vue'

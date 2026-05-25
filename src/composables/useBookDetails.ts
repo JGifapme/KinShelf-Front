@@ -5,6 +5,12 @@ import axios from 'axios';
 import type { BookUserStatus } from '../types/BookUser';
 import router from "../router";
 
+interface LoanStatus {
+    available: boolean;
+    loanId: number | null;
+    borrowerUsername: string | null;
+}
+
 export function useBookDetails() {
     const route = useRoute();
     const book = ref<any>(null);
@@ -39,18 +45,20 @@ export function useBookDetails() {
             if (res.data.bookUsers && res.data.bookUsers.length > 0) {
                 //on récupère les infos de lecture/possession, ... de l'utilisateur connecté
                 const data = res.data.bookUsers.find((u:any) => u.userSlug === userSlug)
-                userStatus.value = {
-                    isOwn: data.isOwn || false,
-                    isRead: data.isRead || false,
-                    isInterested: data.isInterested || false,
-                    rating: data.rating || 0,
-                    comment: data.comment || ""
-                };
+                if (data) { // ← vérification que l'utilisateur a bien une relation avec ce livre
+                    userStatus.value = {
+                        isOwn: data.isOwn || false,
+                        isRead: data.isRead || false,
+                        isInterested: data.isInterested || false,
+                        rating: data.rating || 0,
+                        comment: data.comment || ""
+                    };
+                }
             }
         } catch (err : any) {
             alert(err.response?.data?.message || "Une erreur est survenue.");
             //si le livre n'est pas trouvé pour cette url, renvoie vers la page d'accueil.
-            if (err.response?.status === 404 || !err.response) {
+            if (err.response?.status === 404) {
                 await router.push({name: 'Home'});
             }
         } finally {
@@ -80,6 +88,9 @@ export function useBookDetails() {
                     userStatus.value
                 );
                 await fetchBookDetails();
+                if (userStatus.value.isOwn) {
+                    await Promise.all([fetchLoanStatus(), fetchUsers()]);
+                }
             } catch (error) {
                 (userStatus.value[field] as boolean) = oldValue;
                 console.error("Erreur de synchronisation:", error);
@@ -130,9 +141,48 @@ export function useBookDetails() {
         ) ?? []
     );
 
-    onMounted(fetchBookDetails);
+    // gestion des prêts :
+    const users = ref<{id: number, username: string}[]>([]);
+    const selectedBorrowerId = ref<number | null>(null);
 
-    return { book, loading, toggleStatus, userStatus, isLoading,
-        isEditingReview, pendingRating, pendingComment,
+    const fetchUsers = async () => {
+        const res = await axios.get('/api/users');
+        // on exclut l'utilisateur connecté
+        users.value = res.data.filter((u: any) => u.id !== authStore.user?.id);
+    };
+    const loanStatus = ref<LoanStatus | null>(null);
+
+    const fetchLoanStatus = async () => {
+        try {
+            const res = await axios.get(`/api/loans/${book.value.id}/status`);
+            loanStatus.value = res.data;
+        } catch {
+            loanStatus.value = null;
+        }
+    };
+
+    onMounted(async () => {
+        await fetchBookDetails();
+        if (userStatus.value.isOwn) {
+            await Promise.all([fetchLoanStatus(), fetchUsers()]);
+        }
+    });
+    const showLendModal = ref(false);
+
+    const lend = async () => {
+        if (!selectedBorrowerId.value) return;
+        await axios.post(`/api/loans/${book.value.id}/to/${selectedBorrowerId.value}`);
+        await fetchLoanStatus();
+        selectedBorrowerId.value = null;
+        showLendModal.value = false;
+    };
+
+    const returnBook = async () => {
+        await axios.patch(`/api/loans/${loanStatus.value!.loanId}`);
+        await fetchLoanStatus();
+    };
+
+    return { book, loading, toggleStatus, userStatus, isLoading, loanStatus, showLendModal,
+        isEditingReview, pendingRating, pendingComment, returnBook, lend, users, selectedBorrowerId,
         startEditReview, cancelEditReview, submitReview, otherUsersReviews };
 }

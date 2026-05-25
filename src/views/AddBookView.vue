@@ -151,13 +151,13 @@ const {
     </form>
   </div>
   <!-- MODALE POUR AJOUTER UN NOUVEL AUTEUR EN DB -->
-  <div v-if="isAuthorModalOpen" class="modal">
+  <div v-if="isAuthorModalOpen" @click.self="isAuthorModalOpen = false" class="modal">
     <div>
       <h2>Nouvel Auteur</h2>
-      <p>Veuillez écrire sous le format : Prénom Nom.</p>
-      <p>Pour les pseudos, soit le pseudo seul soit : Pseudo (Prénom, Nom)</p>
+      <p>Veuillez écrire sous le format : Nom, Prénom .</p>
+      <p>Pour les pseudos, soit le pseudo seul soit : Pseudo (Nom, Prénom)</p>
       <div>
-        <input v-model="newAuthor.name" placeholder="Nom">
+        <input v-model="newAuthor.name" placeholder="Nom Prénom">
       </div>
       <div>
         <button @click="isAuthorModalOpen = false">Annuler</button>
@@ -167,7 +167,7 @@ const {
   </div>
 
   <!-- MODALE POUR AJOUTER UN NOUVEL ÉDITEUR EN DB -->
-  <div v-if="isPublisherModalOpen" class="modal">
+  <div v-if="isPublisherModalOpen" @click.self="isPublisherModalOpen = false" class="modal">
     <div>
       <h2>Nouvel Éditeur</h2>
       <input v-model="newPublisher.name" placeholder="Nom de l'éditeur">
@@ -179,7 +179,7 @@ const {
   </div>
 
   <!-- MODALE POUR AJOUTER UNE NOUVELLE SÉRIE EN DB -->
-  <div v-if="isSeriesModalOpen" class="modal">
+  <div v-if="isSeriesModalOpen" @click.self="isSeriesModalOpen = false" class="modal">
     <div>
       <h2>Nouvelle Série</h2>
       <label>Nom</label>

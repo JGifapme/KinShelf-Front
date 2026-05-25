@@ -39,7 +39,7 @@ const handleLogout = async () => {
 
       <!-- CÔTÉ DROIT (Desktop) -->
       <div class="nav-right desktop-only">
-        <router-link :to="`/user/${authStore.user?.slug}`" class="nav-link home-link">Ma Bibliothèque</router-link>
+        <router-link  to="/collection" class="nav-link home-link">Ma Bibliothèque</router-link>
         <button @click="handleLogout" class="nav-link">Se déconnecter</button>
       </div>
 

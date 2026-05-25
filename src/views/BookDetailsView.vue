@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBookDetails } from '../composables/useBookDetails';
-const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview,
+const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, returnBook, lend, loanStatus,
+  users, selectedBorrowerId, showLendModal,
   cancelEditReview, startEditReview, submitReview, pendingComment, pendingRating, otherUsersReviews } = useBookDetails();
 </script>
 
@@ -61,34 +62,43 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview,
         <!-- 1. Possesseurs -->
         <div>
           <button @click="toggleStatus('isOwn')"
-              :class="['btn', userStatus.isOwn ? 'btn-vert' : 'btn-rouge']"
-              :disabled="loading || isLoading">
+                  :class="['btn', userStatus.isOwn ? 'btn-vert' : 'btn-rouge']"
+                  :disabled="loading || isLoading">
             <i v-if="userStatus.isOwn" class="fas fa-check"></i>
             {{ userStatus.isOwn ? 'Dans ma bibliothèque' : 'Ajouter à ma bibliothèque' }}
           </button>
+          <div v-if="userStatus.isOwn">
+            <div v-if="!loanStatus?.available">
+              <p>Prêté à {{ loanStatus?.borrowerUsername }}</p>
+              <button class="btn" @click="returnBook">Retourner</button>
+            </div>
+            <div v-else>
+              <button class="btn" @click="showLendModal = true">Prêter</button>
+            </div>
+          </div>
           <h3><span>📚</span><br>Possédé par</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter(u => u.isOwn)" :key="bu.id">
+            <div v-for="bu in book.bookUsers.filter((u:any) => u.isOwn)" :key="bu.id">
               <router-link :to="'/user/' + bu.userSlug">
-              <span>{{ bu.username }}</span>
+                <span>{{ bu.username }}</span>
               </router-link>
             </div>
-            <p v-if="book.bookUsers.filter(u => u.isOwn).length === 0">Personne ne l'a encore.</p>
+            <p v-if="book.bookUsers.filter((u:any) => u.isOwn).length === 0">Personne ne l'a encore.</p>
           </div>
         </div>
         <!-- 2. Lecteurs -->
         <div>
           <button @click="toggleStatus('isRead')"
-              :class="['btn', userStatus.isRead ? 'btn-vert' : 'btn-rouge']"
-              :disabled="loading || isLoading">
+                  :class="['btn', userStatus.isRead ? 'btn-vert' : 'btn-rouge']"
+                  :disabled="loading || isLoading">
             {{ userStatus.isRead ? 'Livre lu' : 'Marquer comme lu' }}
           </button>
           <h3><span>📖</span><br>Lu par</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter(u => u.isRead)" :key="bu.userSlug">
+            <div v-for="bu in book.bookUsers.filter((u:any) => u.isRead)" :key="bu.userSlug">
               <span>{{ bu.username }}</span>
             </div>
-            <p v-if="book.bookUsers.filter(u => u.isRead).length === 0">Pas encore de lecture.</p>
+            <p v-if="book.bookUsers.filter((u:any) => u.isRead).length === 0">Pas encore de lecture.</p>
           </div>
         </div>
         <!-- 3. Wishlist -->
@@ -100,10 +110,10 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview,
           </button>
           <h3><span>✨</span><br>Voudrait le lire</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter(u => u.isInterested)" :key="bu.userSlug">
+            <div v-for="bu in book.bookUsers.filter((u:any) => u.isInterested)" :key="bu.userSlug">
               <span>{{ bu.username }}</span>
             </div>
-            <p v-if="book.bookUsers.filter(u => u.isInterested).length === 0">Dans aucune wishlist.</p>
+            <p v-if="book.bookUsers.filter((u:any) => u.isInterested).length === 0">Dans aucune wishlist.</p>
           </div>
         </div>
       </div>
@@ -111,26 +121,26 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview,
 
       <h3><span>★</span> Critiques et notes</h3>
 
-        <!-- affiche le commentaire de l'utilisateur connecté (mais pas si il modifie/crée son avis) -->
-        <div class="avisUtil" v-if="!isEditingReview">
-          <p><strong>Mon commentaire :</strong></p>
-          <div><span v-for="i in 5" :key="i">{{ i <= userStatus.rating ? '★' : '☆' }}</span></div>
-          <p>{{ userStatus.comment || "Aucun commentaire" }}</p>
-          <button class="btn" @click="startEditReview">
-            {{ userStatus.rating || userStatus.comment ? "Modifier" : "Ajouter une note" }}
-          </button>
-        </div>
+      <!-- affiche le commentaire de l'utilisateur connecté (mais pas si il modifie/crée son avis) -->
+      <div class="avisUtil" v-if="!isEditingReview">
+        <p><strong>Mon commentaire :</strong></p>
+        <div><span v-for="i in 5" :key="i">{{ i <= userStatus.rating ? '★' : '☆' }}</span></div>
+        <p>{{ userStatus.comment || "Aucun commentaire" }}</p>
+        <button class="btn" @click="startEditReview">
+          {{ userStatus.rating || userStatus.comment ? "Modifier" : "Ajouter une note" }}
+        </button>
+      </div>
 
-        <!-- Formulaire pour donner son avis + commentaires -->
-        <div class="avisUtil" v-else>
-          <input type="number" v-model="pendingRating" min="0" max="5" placeholder="Note (0-5)" />
-          <textarea v-model="pendingComment" placeholder="Votre commentaire..." />
-          <button @click="submitReview" :disabled="isLoading">Envoyer</button>
-          <button @click="cancelEditReview">Annuler</button>
-        </div>
+      <!-- Formulaire pour donner son avis + commentaires -->
+      <div class="avisUtil" v-else>
+        <input type="number" v-model="pendingRating" min="0" max="5" placeholder="Note (0-5)" />
+        <textarea v-model="pendingComment" placeholder="Votre commentaire..." />
+        <button @click="submitReview" :disabled="isLoading">Envoyer</button>
+        <button @click="cancelEditReview">Annuler</button>
+      </div>
       <!-- Avis + commentaires des autres utilisateurs -->
       <div>
-        <div class="avisUtil" v-for="bu in otherUsersReviews.filter(u => (u.rating || u.comment))" :key="bu.userSlug">
+        <div class="avisUtil" v-for="bu in otherUsersReviews.filter((u:any) => (u.rating || u.comment))" :key="bu.userSlug">
           <div>
             <span>{{ bu.username }}</span>
             <div><span v-for="i in 5" :key="i">{{ i <= bu.rating ? '★' : '☆' }}</span></div>
@@ -141,6 +151,25 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview,
 
     </section>
 
+
+    <!-- Modale -->
+    <div v-if="showLendModal" class="modal" @click.self="showLendModal = false">
+      <div>
+        <h3>Prêter {{ book.title }} à :</h3>
+
+        <select v-model="selectedBorrowerId">
+          <option disabled value="">Choisir un utilisateur</option>
+          <option v-for="user in users" :key="user.id" :value="user.id">
+            {{ user.username }}
+          </option>
+        </select>
+
+        <div>
+          <button class="btn" @click="showLendModal = false">Annuler</button>
+          <button class="btn" :disabled="!selectedBorrowerId" @click="lend">Confirmer</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

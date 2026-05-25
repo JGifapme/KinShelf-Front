@@ -4,6 +4,7 @@ import AddBookView from '../views/AddBookView.vue'
 import BookDetailsView from "../views/BookDetailsView.vue";
 import EntityDetailView from "../views/EntityDetailView.vue";
 import {useAuthStore} from "../stores/useAuthStore.ts";
+import ProfileView from "../views/ProfileView.vue";
 
 //Défini les chemins d'accès à l'application, les urls
 const router = createRouter({
@@ -33,6 +34,12 @@ const router = createRouter({
             path: '/book/:slug',
             name: 'book-details',
             component: BookDetailsView,
+            props: true
+        },
+        {
+            path: '/collection',
+            name: 'collection',
+            component: ProfileView,
             props: true
         },
         {
