@@ -1,4 +1,4 @@
-\# KinShelf — Front-end
+# KinShelf — Front-end
 
 
 
@@ -6,21 +6,21 @@ Interface Vue.js 3 pour la gestion de bibliothèque personnelle KinShelf.
 
 
 
-\## Prérequis
+## Prérequis
 
 
 
-\- Node.js 18+
+- Node.js 18+
 
-\- npm
-
-
-
-\## Installation
+- npm
 
 
 
-\### 1. Cloner le repository
+## Installation
+
+
+
+### 1. Cloner le repository
 
 
 
@@ -34,7 +34,7 @@ cd kinshelf-front
 
 
 
-\### 2. Installer les dépendances
+### 2. Installer les dépendances
 
 
 
@@ -46,7 +46,7 @@ npm install
 
 
 
-\### 3. Configurer les variables d'environnement
+### 3. Configurer les variables d'environnement
 
 
 
@@ -56,13 +56,13 @@ Créer un fichier `.env` à la racine du projet :
 
 ```env
 
-VITE\_API\_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8080
 
 ```
 
 
 
-\### 4. Lancer l'application
+### 4. Lancer l'application
 
 
 
@@ -78,7 +78,7 @@ L'application est accessible sur `http://localhost:5173`.
 
 
 
-\## Build pour la production
+## Build pour la production
 
 
 
@@ -94,7 +94,7 @@ Les fichiers générés se trouvent dans le dossier `dist/`.
 
 
 
-\## Structure du projet
+## Structure du projet
 
 
 
@@ -120,7 +120,7 @@ src/
 
 
 
-\## Variables d'environnement disponibles
+## Variables d'environnement disponibles
 
 
 
@@ -132,15 +132,15 @@ src/
 
 
 
-\## Notes
+## Notes
 
 
 
-\- L'authentification est gérée via des \*\*cookies HttpOnly\*\* — aucun token n'est stocké dans le localStorage.
+- L'authentification est gérée via des \*\*cookies HttpOnly\*\* — aucun token n'est stocké dans le localStorage.
 
-\- Le back-end doit être lancé avant le front-end.
+- Le back-end doit être lancé avant le front-end.
 
-\- Les cookies étant `SameSite=Strict`, le front et le back doivent tourner sur le même domaine en production.
+- Les cookies étant `SameSite=Strict`, le front et le back doivent tourner sur le même domaine en production.
 
 
 
