@@ -6,9 +6,6 @@ interface UserStats {
   totalOwned: number;
   totalRead: number;
   totalLent: number;
-  favoriteGenre: string;
-  favoriteAuthor: string;
-  favoriteCategory: string;
   booksByCategory: Record<string, number>;
 }
 
@@ -47,25 +44,6 @@ onMounted(async () => {
         <div class="stat-card">
           <span class="stat-number">{{ stats.totalLent }}</span>
           <span class="stat-label">Livres prêtés</span>
-        </div>
-      </div>
-
-      <!-- FAVORIS -->
-      <div class="stats-favorites">
-        <h3>Mes préférences</h3>
-        <div class="favorite-list">
-          <div class="favorite-item">
-            <span class="favorite-label">Genre favori</span>
-            <span class="favorite-value">{{ stats.favoriteGenre }}</span>
-          </div>
-          <div class="favorite-item">
-            <span class="favorite-label">Auteur favori</span>
-            <span class="favorite-value">{{ stats.favoriteAuthor }}</span>
-          </div>
-          <div class="favorite-item">
-            <span class="favorite-label">Type d'ouvrage favori</span>
-            <span class="favorite-value">{{ stats.favoriteCategory }}</span>
-          </div>
         </div>
       </div>
 

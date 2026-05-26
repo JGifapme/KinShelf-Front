@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { bookLibrary } from '../composables/bookLibrary';
-const { searchQuery, selectedCategory, selectedUser, selectedGenre, genres, users, categories, books,
-        nextPage, goToPage, prevPage, totalPages, currentPage, totalElements } = bookLibrary();
+const { searchQuery, selectedCategory, selectedUser, selectedGenre, genres, users, categories, books, sortBy, userStatus,
+        nextPage, goToPage, prevPage, totalPages, currentPage, totalElements } = bookLibrary({}, true);
 </script>
 
 <template>
@@ -12,8 +12,16 @@ const { searchQuery, selectedCategory, selectedUser, selectedGenre, genres, user
 
     <!-- FILTRE ET RECHERCHE PAR TITRE/AUTEUR/SERIE POUR TRIER LES LIVRES : -->
     <div class="search-bar-container">
+      <select v-model="sortBy" class="cat-select">
+        <option value="a-z">A → Z</option>
+        <option value="z-a">Z → A</option>
+        <option value="newest">Dernier ajouté</option>
+        <option value="oldest">Premier ajouté</option>
+      </select>
       <input v-model="searchQuery" type="text" placeholder="Rechercher par titre, série ou auteur..."
           class="search-input" />
+      </div>
+    <div class="search-bar-container">
       <select v-model="selectedCategory" class="cat-select">
         <option class="griser" value="">Tous les types</option>
         <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
@@ -24,8 +32,14 @@ const { searchQuery, selectedCategory, selectedUser, selectedGenre, genres, user
       </select>
       <select v-model="selectedUser" class="user-select">
         <option class="griser" value="">Tous les livres</option>
-        <option value="all-users">De tous les utilisateurs</option>
-        <option v-for="user in users" :key="user.id" :value="user.slug">Livres de {{ user.username }}</option>
+        <option value="all-users">Possédés par les membres</option>
+        <!--<option v-for="user in users" :key="user.id" :value="user.slug">Livres de {{ user.username }}</option>-->
+      </select>
+      <select v-model="userStatus" class="cat-select">
+        <option :value="null">Tous</option>
+        <option value="readtrue">Lu</option>
+        <option value="readfalse">Non lu</option>
+        <option value="interested">Wishlist</option>
       </select>
     </div>
     <p class="pagination-info">

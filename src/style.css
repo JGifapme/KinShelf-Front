@@ -32,8 +32,6 @@
 body{
     background-color: var(--bg);
     background-image: url("assets/wood-pattern.png");
-    /* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
-    min-height: 100dvh;
     margin: 0;
     padding: 0;
     padding-bottom: 50px;
@@ -61,6 +59,16 @@ h3{
     font-size: 21px;
     font-weight: normal;
     margin: 15px 10px;
+}
+a.lien{
+    color: var(--text-h);
+    text-decoration: none;
+    border-bottom: 2px solid var(--text-h);
+    transition: all .3s;
+}
+a.lien:hover{
+    color: white;
+    border-bottom: 2px solid white;
 }
 #app {
   width: 1126px;
@@ -244,7 +252,7 @@ p.HPlivresTitre{
     color: var(--text);
 }
 .search-bar-container {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     display: flex;
     gap: 1rem;
     justify-content: center;
@@ -301,7 +309,7 @@ option.griser{
     cursor: not-allowed;
 }
 /* ---- BOUTONS ------*/
-form button, input, select, label, button.btn{
+form button, form input, form select, form label, button.btn{
     padding: 3px 5px 2px 5px;
     font-size: 16px;
     margin-bottom: 8px;

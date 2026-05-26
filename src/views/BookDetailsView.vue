@@ -20,29 +20,29 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
         </div>
         <!-- Colonne 2 : Infos techniques -->
         <div>
-          <router-link :to="`/edit-book/${book.slug}`" class="btn-edit">
+          <router-link :to="`/edit-book/${book.slug}`" class="lien">
             Modifier le livre
           </router-link>
           <h2>Fiche Technique</h2>
           <p><strong>isbn :</strong> {{ book.isbn }}</p>
           <p><strong>Série : </strong>
-            <router-link v-if="book.series" :to="'/series/' + book.series?.slug">
+            <router-link v-if="book.series" :to="'/series/' + book.series?.slug" class="lien">
               {{ book.series.name}} ({{ book.series.status }})
             </router-link>
             <span v-else>Non</span>
           </p>
-          <p><strong>Éditeur :</strong> <router-link :to="'/publisher/' + book.publisher?.slug">{{ book.publisher?.name }}</router-link></p>
-          <p><strong>Catégorie :</strong> <router-link :to="'/category/' + book.category?.slug">{{ book.category?.name }}</router-link></p>
+          <p><strong>Éditeur :</strong> <router-link :to="'/publisher/' + book.publisher?.slug" class="lien">{{ book.publisher?.name }}</router-link></p>
+          <p><strong>Catégorie :</strong> <router-link :to="'/category/' + book.category?.slug" class="lien">{{ book.category?.name }}</router-link></p>
           <p><strong>Pages :</strong> {{ book.numberOfPages }}</p>
           <p><strong>Date de sortie :</strong> {{ book.publicationDate }}</p>
           <p><strong>Genre(s) :</strong> <span v-for="genre in book.genres" :key="genre.id">
-            <router-link :to="'/genre/' + genre.slug">
+            <router-link :to="'/genre/' + genre.slug" class="lien">
               {{ genre.name }}
             </router-link>
             &nbsp;</span></p>
           <p><strong>Auteur(s) : </strong>
             <span v-for="(a, index) in book.authors" :key="a.id">
-              <router-link :to="'/author/' + a.slug">
+              <router-link :to="'/author/' + a.slug" class="lien">
                 {{ a.name }} <span class="author-role">({{ a.role.toLowerCase() }})</span>
               </router-link>
               <span v-if="index < book.authors.length - 1">, </span>
@@ -50,13 +50,12 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
           </p>
         </div>
       </div>
-      <h3>Synopsis</h3>
+      <h3 v-if="book.description">Synopsis</h3>
       <p>{{ book.description }}</p>
     </section>
 
     <!-- Section Sociale (Interactions utilisateurs) -->
     <section>
-      <p>{{ userStatus }}</p>
       <p v-if="isLoading">Mise à jour en cours...</p>
       <div class="wrapper interUtil">
         <!-- 1. Possesseurs -->
@@ -78,11 +77,11 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
           </div>
           <h3><span>📚</span><br>Possédé par</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter((u:any) => u.isOwn)" :key="bu.id">
-              <router-link :to="'/user/' + bu.userSlug">
+            <span v-for="bu in book.bookUsers.filter((u:any) => u.isOwn)" :key="bu.id">
+              <router-link :to="'/user/' + bu.userSlug" class="lien">
                 <span>{{ bu.username }}</span>
-              </router-link>
-            </div>
+              </router-link>&nbsp;&nbsp;
+            </span>
             <p v-if="book.bookUsers.filter((u:any) => u.isOwn).length === 0">Personne ne l'a encore.</p>
           </div>
         </div>
@@ -95,9 +94,11 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
           </button>
           <h3><span>📖</span><br>Lu par</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter((u:any) => u.isRead)" :key="bu.userSlug">
+            <span v-for="bu in book.bookUsers.filter((u:any) => u.isRead)" :key="bu.userSlug">
+              <router-link :to="'/user/' + bu.userSlug" class="lien">
               <span>{{ bu.username }}</span>
-            </div>
+              </router-link>&nbsp;
+            </span>
             <p v-if="book.bookUsers.filter((u:any) => u.isRead).length === 0">Pas encore de lecture.</p>
           </div>
         </div>

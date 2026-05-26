@@ -6,7 +6,7 @@ import App from './App.vue'
 import router from './router' // Importe ton fichier router
 import './style.css'
 
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 axios.defaults.withCredentials = true;
 
 const app = createApp(App);
