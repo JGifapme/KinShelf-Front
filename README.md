@@ -128,7 +128,7 @@ src/
 
 |---|---|---|
 
-| `VITE\_API\_URL` | URL de l'API back-end | `http://localhost:8080` |
+| `VITE_API_URL` | URL de l'API back-end | `http://localhost:8080` |
 
 
 
