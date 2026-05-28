@@ -34,11 +34,8 @@ const { books, searchQuery, currentPage, totalPages, nextPage, prevPage, goToPag
 
       <!-- Ses livres -->
       <div class="profile-books">
-        <h2>Sa bibliothèque <!--({{ profile.books.length }} livres)--></h2>
+        <h2>Sa bibliothèque</h2>
 
-       <!-- <div v-if="profile.books.length === 0">
-          Aucun livre pour le moment.
-        </div>-->
         <div class="search-bar-container">
           <input v-model="searchQuery" type="text" placeholder="Rechercher par titre, série ou auteur..."
                  class="search-input" />
@@ -51,7 +48,10 @@ const { books, searchQuery, currentPage, totalPages, nextPage, prevPage, goToPag
             <option v-for="genre in genres" :key="genre.id" :value="genre.slug">{{ genre.name }}</option>
           </select>
         </div>
-        <p class="pagination-info">
+        <p v-if="books.length === 0">
+          Aucun livre pour le moment.
+        </p>
+        <p v-else class="pagination-info">
           {{ totalElements }} livres - Page {{ currentPage + 1 }} / {{ totalPages }}
         </p>
         <div class="shelf">

@@ -332,20 +332,15 @@ form button:hover, button.btn:hover {
     color: var(--text);
     border-color: var(--text);
 }
-button.btn.btn-vert {
-    background-color: rgb(179, 255, 212);
-    color: #0b8053;
-    border-color: #0b8053;
+button.btn.btn-vert, button.btn.btn-rouge:hover {
+    background-color: #6aefa8;
+    color: #055534;
+    border-color: #055534;
 }
 button.btn.btn-vert:hover{
-    background-color: #ffdcdc;
-    color: darkred;
-    border-color: darkred;
-}
-button.btn.btn-rouge:hover {
-    background-color: rgb(179, 255, 212);
-    color: #0b8053;
-    border-color: #0b8053;
+    background-color: #ffae9c;
+    color: #b80f00;
+    border-color: #b80f00;
 }
     /* --- Animation de glissement --- */
 .slide-enter-active, .slide-leave-active {

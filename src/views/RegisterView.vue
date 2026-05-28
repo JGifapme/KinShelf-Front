@@ -36,13 +36,24 @@ const handleRegister = async () => {
 
     <input v-model="username" type="text" placeholder="Nom d'utilisateur" />
     <input v-model="email" type="email" placeholder="Email" />
+    <p>Date de naissance : </p>
     <input v-model="dateOfBirth" type="date" />
     <input v-model="password" type="password" placeholder="Mot de passe" />
 
-    <button @click="handleRegister" :disabled="loading">
+    <button class="btn" @click="handleRegister" :disabled="loading">
       {{ loading ? 'Inscription...' : "S'inscrire" }}
     </button>
+    <br>
 
-    <p>Déjà un compte ? <RouterLink to="/login">Se connecter</RouterLink></p>
+    <p>Déjà un compte ? <RouterLink to="/login" class="lien">Se connecter</RouterLink></p>
   </div>
 </template>
+<style scoped>
+input, button{
+  padding: 4px 5px 2px 5px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  display: block;
+  margin: 10px auto;
+}
+</style>

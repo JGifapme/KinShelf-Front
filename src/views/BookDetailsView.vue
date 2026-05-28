@@ -6,6 +6,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
 </script>
 
 <template>
+  <div>
   <div v-if="loading" class="text-center p-10 font-bold">Chargement des données...</div>
 
   <div v-else-if="book">
@@ -56,17 +57,18 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
 
     <!-- Section Sociale (Interactions utilisateurs) -->
     <section>
-      <p v-if="isLoading">Mise à jour en cours...</p>
+      <p>{{userStatus}}</p>
+      <p v-show="isLoading">Mise à jour en cours...</p>
       <div class="wrapper interUtil">
         <!-- 1. Possesseurs -->
         <div>
           <button @click="toggleStatus('isOwn')"
                   :class="['btn', userStatus.isOwn ? 'btn-vert' : 'btn-rouge']"
                   :disabled="loading || isLoading">
-            <i v-if="userStatus.isOwn" class="fas fa-check"></i>
+            <i v-show="userStatus.isOwn" class="fas fa-check"></i>
             {{ userStatus.isOwn ? 'Dans ma bibliothèque' : 'Ajouter à ma bibliothèque' }}
           </button>
-          <div v-if="userStatus.isOwn">
+          <div v-show="userStatus.isOwn">
             <div v-if="!loanStatus?.available">
               <p>Prêté à {{ loanStatus?.borrowerUsername }}</p>
               <button class="btn" @click="returnBook">Retourner</button>
@@ -75,14 +77,14 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
               <button class="btn" @click="showLendModal = true">Prêter</button>
             </div>
           </div>
-          <h3><span>📚</span><br>Possédé par</h3>
+          <h3><span><i class="fa-solid fa-book"></i></span><br>Possédé par</h3>
           <div>
-            <span v-for="bu in book.bookUsers.filter((u:any) => u.isOwn)" :key="bu.id">
+            <span v-for="(bu, index) in book?.bookUsers?.filter((u:any) => u.isOwn)" :key="bu.id || index">
               <router-link :to="'/user/' + bu.userSlug" class="lien">
                 <span>{{ bu.username }}</span>
               </router-link>&nbsp;&nbsp;
             </span>
-            <p v-if="book.bookUsers.filter((u:any) => u.isOwn).length === 0">Personne ne l'a encore.</p>
+            <p v-if="book?.bookUsers?.filter((u:any) => u.isOwn).length === 0">Personne ne l'a encore.</p>
           </div>
         </div>
         <!-- 2. Lecteurs -->
@@ -92,14 +94,14 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
                   :disabled="loading || isLoading">
             {{ userStatus.isRead ? 'Livre lu' : 'Marquer comme lu' }}
           </button>
-          <h3><span>📖</span><br>Lu par</h3>
+          <h3><span><i class="fa-solid fa-book-open"></i></span><br>Lu par</h3>
           <div>
-            <span v-for="bu in book.bookUsers.filter((u:any) => u.isRead)" :key="bu.userSlug">
+            <span v-for="bu in book?.bookUsers?.filter((u:any) => u.isRead) ?? []" :key="bu.id">
               <router-link :to="'/user/' + bu.userSlug" class="lien">
               <span>{{ bu.username }}</span>
               </router-link>&nbsp;
             </span>
-            <p v-if="book.bookUsers.filter((u:any) => u.isRead).length === 0">Pas encore de lecture.</p>
+            <p v-if="book?.bookUsers?.filter((u:any) => u.isRead).length === 0">Pas encore de lecture.</p>
           </div>
         </div>
         <!-- 3. Wishlist -->
@@ -109,23 +111,23 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
                   :disabled="loading || isLoading">
             {{ userStatus.isInterested ? 'Dans la wishlist' : 'Ajouter à la whishlist' }}
           </button>
-          <h3><span>✨</span><br>Voudrait le lire</h3>
+          <h3><span><i class="fa-regular fa-bookmark"></i></span><br>Voudrait le lire</h3>
           <div>
-            <div v-for="bu in book.bookUsers.filter((u:any) => u.isInterested)" :key="bu.userSlug">
+            <div v-for="bu in book?.bookUsers?.filter((u:any) => u.isInterested) ?? []" :key="bu.id">
               <span>{{ bu.username }}</span>
             </div>
-            <p v-if="book.bookUsers.filter((u:any) => u.isInterested).length === 0">Dans aucune wishlist.</p>
+            <p v-if="book?.bookUsers?.filter((u:any) => u.isInterested).length === 0">Dans aucune wishlist.</p>
           </div>
         </div>
       </div>
       <!-- Avis et Notes -->
 
-      <h3><span>★</span> Critiques et notes</h3>
+      <h3><span><i class="fa-regular fa-star"></i></span> Critiques et notes</h3>
 
       <!-- affiche le commentaire de l'utilisateur connecté (mais pas si il modifie/crée son avis) -->
       <div class="avisUtil" v-if="!isEditingReview">
         <p><strong>Mon commentaire :</strong></p>
-        <div><span v-for="i in 5" :key="i">{{ i <= userStatus.rating ? '★' : '☆' }}</span></div>
+        <div><span class="star" v-for="i in 5" :key="i">{{ i <= userStatus.rating ? '★' : '☆' }}</span></div>
         <p>{{ userStatus.comment || "Aucun commentaire" }}</p>
         <button class="btn" @click="startEditReview">
           {{ userStatus.rating || userStatus.comment ? "Modifier" : "Ajouter une note" }}
@@ -141,7 +143,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
       </div>
       <!-- Avis + commentaires des autres utilisateurs -->
       <div>
-        <div class="avisUtil" v-for="bu in otherUsersReviews.filter((u:any) => (u.rating || u.comment))" :key="bu.userSlug">
+        <div class="avisUtil" v-for="bu in otherUsersReviews.filter((u:any) => (u.rating || u.comment))" :key="bu.id">
           <div>
             <span>{{ bu.username }}</span>
             <div><span v-for="i in 5" :key="i">{{ i <= bu.rating ? '★' : '☆' }}</span></div>
@@ -153,7 +155,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
     </section>
 
 
-    <!-- Modale -->
+    <!-- Modale pour choisir à qui prêter -->
     <div v-if="showLendModal" class="modal" @click.self="showLendModal = false">
       <div>
         <h3>Prêter {{ book.title }} à :</h3>
@@ -171,6 +173,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
         </div>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -202,5 +205,8 @@ div.wrapper.interUtil > div, div.avisUtil{
   padding: 10px;
   margin: 0 auto 10px auto;
 }
-
+h3>span, span.star{
+  font-size: 25px;
+  color: var(--text-h);
+}
 </style>

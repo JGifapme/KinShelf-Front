@@ -40,6 +40,13 @@ const handleLogin = async () => {
     </button>
     <br>
 
-    <p>Pas encore de compte ? <RouterLink to="/register">S'inscrire</RouterLink></p>
+    <p>Pas encore de compte ? <RouterLink to="/register" class="lien">S'inscrire</RouterLink></p>
   </div>
 </template>
+<style scoped>
+input, button{
+  padding: 4px 5px 2px 5px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+</style>

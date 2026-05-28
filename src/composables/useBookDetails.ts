@@ -34,17 +34,23 @@ export function useBookDetails() {
         comment: ""
     });
 
-    const fetchBookDetails = async () => {
-        loading.value = true;
+    const fetchBookDetails = async (silent = false) => {
+        if (!silent) loading.value = true;
         try {
             //on récupère les données du livre avec les données de lecture/possession des différents utilisateurs
             const slug = route.params.slug;
             const res = await axios.get(`/api/books/${slug}`);
-            book.value = res.data;
+
+            // mise à jour en place plutôt que remplacement complet
+            if (book.value) {
+                Object.assign(book.value, res.data);
+            } else {
+                book.value = res.data;
+            }
 
             if (res.data.bookUsers && res.data.bookUsers.length > 0) {
                 //on récupère les infos de lecture/possession, ... de l'utilisateur connecté
-                const data = res.data.bookUsers.find((u:any) => u.userSlug === userSlug)
+                const data = res.data.bookUsers.find((u:any) => u.userSlug === userSlug);
                 if (data) { // ← vérification que l'utilisateur a bien une relation avec ce livre
                     userStatus.value = {
                         isOwn: data.isOwn || false,
@@ -53,16 +59,25 @@ export function useBookDetails() {
                         rating: data.rating || 0,
                         comment: data.comment || ""
                     };
+                } else {
+                    // reset si plus d'interaction
+                    userStatus.value = {
+                        isOwn: false,
+                        isRead: false,
+                        isInterested: false,
+                        rating: 0,
+                        comment: ""
+                    };
                 }
             }
-        } catch (err : any) {
+        } catch (err: any) {
             alert(err.response?.data?.message || "Une erreur est survenue.");
             //si le livre n'est pas trouvé pour cette url, renvoie vers la page d'accueil.
             if (err.response?.status === 404) {
                 await router.push({name: 'Home'});
             }
         } finally {
-            loading.value = false;
+            if (!silent) loading.value = false;
         }
     };
 
@@ -75,11 +90,17 @@ export function useBookDetails() {
         // Sécurité TypeScript : On vérifie explicitement que c'est un booléen
         if (typeof currentValue === 'boolean') {
             isLoading.value = true;
-            const oldValue = currentValue;
-
             // On utilise un "as any" ou on réassigne proprement pour bypasser le verrou
-            (userStatus.value[field] as boolean) = !oldValue;
-
+            //(userStatus.value[field] as boolean) = !currentValue l'équivalent de :
+            if (field === "isOwn"){
+                userStatus.value.isOwn = !currentValue;
+            }
+            else if (field === "isRead"){
+                userStatus.value.isRead = !currentValue;
+            }
+            else if(field === "isInterested"){
+                userStatus.value.isInterested = !currentValue;
+            }
             try {
                 await axios.patch(
                     // pour cet endpoint le back-end récupère l'utilisateur connecté via le jwt token
@@ -87,12 +108,15 @@ export function useBookDetails() {
                     `/api/books/${book.value.id}/status`,
                     userStatus.value
                 );
-                await fetchBookDetails();
+                await fetchBookDetails(true); // ← pas de loading, pas de re-render brutal
                 if (userStatus.value.isOwn) {
                     await Promise.all([fetchLoanStatus(), fetchUsers()]);
+                }else {
+                    loanStatus.value = null; // ← reset quand on retire le livre
+                    users.value = [];
                 }
             } catch (error) {
-                (userStatus.value[field] as boolean) = oldValue;
+                (userStatus.value[field] as boolean) = currentValue;
                 console.error("Erreur de synchronisation:", error);
             } finally {
                 isLoading.value = false;
@@ -153,7 +177,7 @@ export function useBookDetails() {
     const loanStatus = ref<LoanStatus | null>(null);
 
     const fetchLoanStatus = async () => {
-        try {
+       try {
             const res = await axios.get(`/api/loans/${book.value.id}/status`);
             loanStatus.value = res.data;
         } catch {
