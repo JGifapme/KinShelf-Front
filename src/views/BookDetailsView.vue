@@ -65,8 +65,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
           <button @click="toggleStatus('isOwn')"
                   :class="['btn', userStatus.isOwn ? 'btn-vert' : 'btn-rouge']"
                   :disabled="loading || isLoading">
-            <i v-show="userStatus.isOwn" class="fas fa-check"></i>
-            {{ userStatus.isOwn ? 'Dans ma bibliothèque' : 'Ajouter à ma bibliothèque' }}
+            {{ userStatus.isOwn ? '&#x2714; Dans ma bibliothèque' : '+ Ajouter à ma bibliothèque' }}
           </button>
           <div v-show="userStatus.isOwn">
             <div v-if="!loanStatus?.available">
@@ -92,7 +91,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
           <button @click="toggleStatus('isRead')"
                   :class="['btn', userStatus.isRead ? 'btn-vert' : 'btn-rouge']"
                   :disabled="loading || isLoading">
-            {{ userStatus.isRead ? 'Livre lu' : 'Marquer comme lu' }}
+            {{ userStatus.isRead ? '&#x2714; Livre lu' : '+ Marquer comme lu' }}
           </button>
           <h3><span><i class="fa-solid fa-book-open"></i></span><br>Lu par</h3>
           <div>
@@ -109,7 +108,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
           <button @click="toggleStatus('isInterested')"
                   :class="['btn', userStatus.isInterested ? 'btn-vert' : 'btn-rouge']"
                   :disabled="loading || isLoading">
-            {{ userStatus.isInterested ? 'Dans la wishlist' : 'Ajouter à la whishlist' }}
+            {{ userStatus.isInterested ? '&#x2714; Dans la wishlist' : '+ Ajouter à la whishlist' }}
           </button>
           <h3><span><i class="fa-regular fa-bookmark"></i></span><br>Voudrait le lire</h3>
           <div>
@@ -130,7 +129,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
         <div><span class="star" v-for="i in 5" :key="i">{{ i <= userStatus.rating ? '★' : '☆' }}</span></div>
         <p>{{ userStatus.comment || "Aucun commentaire" }}</p>
         <button class="btn" @click="startEditReview">
-          {{ userStatus.rating || userStatus.comment ? "Modifier" : "Ajouter une note" }}
+          {{ userStatus.rating || userStatus.comment ? " Modifier" : " Ajouter une note" }}
         </button>
       </div>
 

@@ -28,37 +28,37 @@ const {
       </div>
       <!-- REMPLISSAGE/MODIFICATION MANUELLE : -->
       <!-- Titre -->
-      <div>
+      <div class="field">
         <label>Titre*</label>
         <input v-model="bookForm.title" type="text" required>
       </div>
       <!-- isbn -->
-      <div>
+      <div class="field">
         <label>isbn</label>
         <input v-model="bookForm.isbn" type="text">
       </div>
       <!--Description -->
-      <div>
+      <div class="field">
         <label>Synopsis/Description</label>
         <input v-model="bookForm.description" type="text">
       </div>
       <!--Nombre de pages -->
-      <div>
+      <div class="field">
         <label>Nombre de pages</label>
         <input v-model.number="bookForm.numberOfPages" type="number">
       </div>
       <!--Url de l'image -->
-      <div>
+      <div class="field">
         <label>Lien URL de l'image de couverture</label>
         <input v-model="bookForm.coverUrl" type="text">
       </div>
       <!--Date de publication -->
-      <div>
+      <div class="field">
         <label>Date de publication</label>
         <input v-model="bookForm.publicationDate" type="date">
       </div>
       <!-- Catégorie -->
-      <div>
+      <div class="field">
         <label>Catégorie*</label>
         <select v-model.number="bookForm.categoryId">
           <option :value="null">-- Choisir une catégorie --</option>
@@ -67,9 +67,9 @@ const {
       </div>
 
       <!-- Éditeur avec bouton "+" pour la modale -->
-      <div>
+      <div class="field">
         <label>Éditeur</label>
-        <div>
+        <div class="field-inline">
           <select v-model.number="bookForm.publisherId">
             <option :value="null">-- Choisir un éditeur --</option>
             <option v-for="pub in allPublishers" :key="pub.id" :value="pub.id">{{ pub.name }}</option>
@@ -84,9 +84,9 @@ const {
         </p>
       </div>
       <!-- Série -->
-      <div>
+      <div class="field">
         <label>Série</label>
-        <div>
+        <div  class="field-inline">
           <select v-model.number="bookForm.seriesId">
             <option :value="null">-- Aucune série --</option>
             <option v-for="s in allSeries" :key="s.id" :value="s.id">
@@ -97,7 +97,7 @@ const {
         </div>
       </div>
       <!--Genres -->
-      <div>
+      <div class="field">
         <label>Genres</label>
         <!-- Checkboxes multiples -->
         <div>
@@ -109,7 +109,7 @@ const {
         <p>{{ bookForm.genreIds.length }} genre(s) sélectionné(s)</p>
       </div>
       <!--Auteurs-->
-      <div>
+      <div class="field">
         <div>
           <h2>Auteurs*</h2>
           <button type="button" @click="addAuthorRow">+ Ajouter un auteur</button>
