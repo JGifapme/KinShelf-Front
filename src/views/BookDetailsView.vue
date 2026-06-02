@@ -21,7 +21,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
         </div>
         <!-- Colonne 2 : Infos techniques -->
         <div>
-          <router-link :to="`/edit-book/${book.slug}`" class="lien">
+          <router-link :to="`/edit-book/${book.slug}`" class="lien edit">
             Modifier le livre
           </router-link>
           <h2>Fiche Technique</h2>
@@ -57,7 +57,7 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
 
     <!-- Section Sociale (Interactions utilisateurs) -->
     <section>
-      <p>{{userStatus}}</p>
+      <!--<p>{{userStatus}}</p>-->
       <p v-show="isLoading">Mise à jour en cours...</p>
       <div class="wrapper interUtil">
         <!-- 1. Possesseurs -->
@@ -207,5 +207,8 @@ div.wrapper.interUtil > div, div.avisUtil{
 h3>span, span.star{
   font-size: 25px;
   color: var(--text-h);
+}
+a.edit{
+  text-align: right;
 }
 </style>

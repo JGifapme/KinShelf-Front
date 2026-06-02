@@ -6,8 +6,9 @@ Interface Vue.js 3 pour la gestion de bibliothèque personnelle KinShelf.
 
 | Partie | Repository |
 |---|---|
-| 🖥️ Back-end | [kinshelf-back] https://github.com/JGifapme/KinShelf |
-| 🎨 Front-end | [kinshelf-front] https://github.com/JGifapme/KinShelf-Front |
+| Docker | [kinshelf-back](https://github.com/JGifapme/KinShelf-Docker) |
+| 🖥️ Back-end | [kinshelf-back](https://github.com/JGifapme/KinShelf) |
+| 🎨 Front-end | [kinshelf-front](https://github.com/JGifapme/KinShelf-Front) |
 
 ## Prérequis
 
