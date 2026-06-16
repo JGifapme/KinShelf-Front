@@ -46,7 +46,11 @@ export function bookLibrary(options: BookSearchOptions = {}, persist = false) {
     const currentPage = persist
         ? computed({ get: () => filterStore!.currentPage, set: (v) => filterStore!.currentPage = v })
         : ref(0);
-    const selectedUser = ref(options.defaultUserSlug || '');
+
+    const selectedUser = persist
+        ? computed({ get: () => filterStore!.selectedUser, set: (v) => filterStore!.selectedUser = v })
+        : ref(options.defaultUserSlug || '');
+
     const selectedPublisher = ref(options.defaultPublisherSlug || '');
 
     const books = ref<Book[]>([]) // liste de "Book"

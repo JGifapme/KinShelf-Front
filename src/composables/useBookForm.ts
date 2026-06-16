@@ -152,6 +152,7 @@ export function useBookForm() {
             const data = res.data;
                 // Remplissage auto
                 bookForm.title = data.title || '';
+                bookForm.isbn = data.isbn || '';
                 bookForm.description = data.description || '';
                 bookForm.numberOfPages = data.pageCount || null;
                 bookForm.coverUrl = data.imageUrl || '';

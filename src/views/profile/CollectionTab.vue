@@ -7,7 +7,7 @@ const authStore = useAuthStore();
 const { books, searchQuery, currentPage, totalPages, nextPage, prevPage, sortBy, userStatus,
   goToPage, selectedGenre, selectedCategory, genres, categories, totalElements } = bookLibrary({
   defaultUserSlug: authStore.user?.slug
-}, true);
+}, false);
 </script>
 
 <template>
@@ -47,7 +47,7 @@ const { books, searchQuery, currentPage, totalPages, nextPage, prevPage, sortBy,
         <router-link :to="'/book/' + book.slug">
           <img v-if="book.coverUrl" :src="book.coverUrl" :alt="book.title" />
           <div v-else class="siPasCouv"><h2>{{ book.title }}</h2></div>
-          <p>{{ book.title }}</p>
+          <p class="HPlivresTitre">{{ book.title }}</p>
         </router-link>
       </div>
     </div>

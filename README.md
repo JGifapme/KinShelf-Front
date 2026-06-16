@@ -20,7 +20,7 @@ Interface Vue.js 3 pour la gestion de bibliothèque personnelle KinShelf.
 
 
 ```bash
-git clone <url-front>
+git clone https://github.com/JGifapme/KinShelf-Front
 cd kinshelf-front
 ```
 

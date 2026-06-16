@@ -1,6 +1,6 @@
 :root {
   --text: #324860;
-  --text-h: #005d87;
+  --text-h: rgb(0, 93, 136);
   --bg: #f2d094;
   --border: #C9C1B1;
   --code-bg: #f4f3ec;
@@ -14,7 +14,7 @@
   letter-spacing: 0.18px;
   color: var(--text);
   /*background: linear-gradient(to top left, var(--bg), var(--code-bg) );*/
-    font-family: "Roboto Light", sans-serif;
+  font-family: "Roboto Light", sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

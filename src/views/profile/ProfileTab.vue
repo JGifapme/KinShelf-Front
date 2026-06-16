@@ -125,7 +125,7 @@ hr {
 
 .password-hint {
   font-size: 0.85rem;
-  color: #888;
+  margin: 10px 0;
 }
 
 .error {
@@ -141,5 +141,21 @@ hr {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+hr{
+  border-color: var(--text-h);
+  margin-bottom: 15px;
+}
+form{
+  width: 500px;
+  margin: 15px auto;
+  max-width: 100%;
+}
+div.form-group{
+  margin: 8px 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 </style>

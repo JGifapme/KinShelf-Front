@@ -33,7 +33,7 @@ const { searchQuery, selectedCategory, selectedUser, selectedGenre, genres, user
       <select v-model="selectedUser" class="user-select">
         <option class="griser" value="">Tous les livres</option>
         <option value="all-users">Possédés par les membres</option>
-        <!--<option v-for="user in users" :key="user.id" :value="user.slug">Livres de {{ user.username }}</option>-->
+        <option v-for="user in users" :key="user.id" :value="user.slug">Livres de {{ user.username }}</option>
       </select>
       <select v-model="userStatus" class="cat-select">
         <option :value="null">Tous</option>

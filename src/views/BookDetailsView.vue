@@ -25,17 +25,17 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
             Modifier le livre
           </router-link>
           <h2>Fiche Technique</h2>
-          <p><strong>isbn :</strong> {{ book.isbn }}</p>
+          <p v-if="book.isbn"><strong>isbn :</strong> {{ book.isbn }}</p>
           <p><strong>Série : </strong>
             <router-link v-if="book.series" :to="'/series/' + book.series?.slug" class="lien">
               {{ book.series.name}} ({{ book.series.status }})
             </router-link>
             <span v-else>Non</span>
           </p>
-          <p><strong>Éditeur :</strong> <router-link :to="'/publisher/' + book.publisher?.slug" class="lien">{{ book.publisher?.name }}</router-link></p>
+          <p v-if="book.publisher"><strong>Éditeur :</strong> <router-link :to="'/publisher/' + book.publisher?.slug" class="lien">{{ book.publisher?.name }}</router-link></p>
           <p><strong>Catégorie :</strong> <router-link :to="'/category/' + book.category?.slug" class="lien">{{ book.category?.name }}</router-link></p>
-          <p><strong>Pages :</strong> {{ book.numberOfPages }}</p>
-          <p><strong>Date de sortie :</strong> {{ book.publicationDate }}</p>
+          <p v-if="book.numberOfPages"><strong>Pages :</strong> {{ book.numberOfPages }}</p>
+          <p v-if="book.publicationDate"><strong>Date de sortie :</strong> {{ book.publicationDate }}</p>
           <p><strong>Genre(s) :</strong> <span v-for="genre in book.genres" :key="genre.id">
             <router-link :to="'/genre/' + genre.slug" class="lien">
               {{ genre.name }}
@@ -113,7 +113,9 @@ const { book, loading, toggleStatus, userStatus, isLoading, isEditingReview, ret
           <h3><span><i class="fa-regular fa-bookmark"></i></span><br>Voudrait le lire</h3>
           <div>
             <div v-for="bu in book?.bookUsers?.filter((u:any) => u.isInterested) ?? []" :key="bu.id">
-              <span>{{ bu.username }}</span>
+              <router-link :to="'/user/' + bu.userSlug" class="lien">
+                <span>{{ bu.username }}</span>
+              </router-link>&nbsp;
             </div>
             <p v-if="book?.bookUsers?.filter((u:any) => u.isInterested).length === 0">Dans aucune wishlist.</p>
           </div>
